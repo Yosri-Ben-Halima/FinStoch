@@ -214,16 +214,16 @@ import numpy as np
 from FinStoch.processes import HestonModel
 
 # Parameters
-S0 = 100
-mu = 0.05
-T = 1.0
-num_steps = 252
-num_paths = 10
-kappa = 1.5
-theta = 0.04
-sigma = 0.3
-rho = -0.7
-v0 = 0.02
+S0 = 100           # Initial value
+v0 = 0.02          # Initial volatility
+mu = 0.05          # Long-term mean of the value
+theta = 0.04       # Long-term mean of the volatility
+sigma = 0.3        # Volatility of the volatility
+kappa = 1.5        # Speed of reversion
+rho = -0.7         # Correlation between shocks
+T = 1.0            # Total time
+num_steps = 252    # Number of time steps (e.g., trading days in a year)
+num_paths = 10     # Number of simulation paths
 
 # Create the Heston model instance and plot
 heston = HestonModel(S0, v0, mu, sigma, theta, kappa, rho, T, num_steps, num_paths)
