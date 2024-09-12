@@ -32,8 +32,8 @@ class OrnsteinUhlenbeck :
 
         return S
 
-    def plot(self, paths = None, ylabel = 'Price'):
-        plot_simulated_paths(self.simulate, self._t, paths, title="Ornstein-Uhlenbeck Process", ylabel=ylabel)
+    def plot(self, paths = None, ylabel = 'Value'):
+        plot_simulated_paths(self._t, self.simulate, paths, title="Ornstein-Uhlenbeck Process", ylabel=ylabel)
 
     @property
     def S0(self) -> float:
@@ -102,18 +102,3 @@ class OrnsteinUhlenbeck :
     @property
     def t(self) -> np.ndarray:
         return self._t
-    
-
-np.random.seed(42)
-
-# Parameters
-S0 = 100
-mu = 100
-sigma = 0.5
-theta = 0.5
-T = 1.0 # 1 year
-num_steps = 252 # 252 trading days in a year
-num_paths = 10
-
-gbm = OrnsteinUhlenbeck(S0, mu, sigma, theta, T, num_steps, num_paths)
-gbm.plot()

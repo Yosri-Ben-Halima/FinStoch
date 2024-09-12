@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 
-def plot_simulated_paths(simulate_func, t, paths=None, title="Simulated Paths", ylabel = "Price"):
+def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Paths", ylabel = "Price"):
     """
     Plots the simulated paths.
 
     ## Parameters:
-    - simulate_func: The simulate method of the class instance.
     - t: Time array used for plotting.
+    - simulate_func: The simulate method of the class instance.
     - paths: Optional, a numpy array representing the simulated paths.
     - title: Optional, the title for the plot.
     """

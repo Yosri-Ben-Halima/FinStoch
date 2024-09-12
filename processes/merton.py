@@ -44,8 +44,8 @@ class MertonModel:
 
         return S
 
-    def plot(self, paths = None, ylabel = 'Price'):
-        plot_simulated_paths(self.simulate, self._t, paths, title="Merton Model", ylabel=ylabel)
+    def plot(self, paths = None, ylabel = 'Value'):
+        plot_simulated_paths(self._t, self.simulate, paths, title="Merton Model", ylabel=ylabel)
 
     @property
     def S0(self) -> float:
@@ -131,20 +131,3 @@ class MertonModel:
     def t(self) -> np.ndarray:
         return self._t
 
-
-
-np.random.seed(42)
-
-# Parameters
-S0 = 100
-mu = 0.05
-sigma = 0.2
-T = 1.0 # 1 year
-num_steps = 252 # 252 trading days in a year
-num_paths = 10
-lambda_j = 1
-mu_j = 0.02
-sigma_j = 0.1
-
-merton = MertonModel(S0, mu, sigma, T, num_steps, num_paths, lambda_j, mu_j, sigma_j)
-merton.plot()
