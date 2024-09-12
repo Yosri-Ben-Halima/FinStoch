@@ -6,12 +6,6 @@
 pip install FinStoch
 ```
 
-## Installation
-
-```bash
-pip install FinStoch
-```
-
 ## Processes
 
 ### Geometric Brownian Motion
