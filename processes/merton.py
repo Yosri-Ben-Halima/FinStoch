@@ -7,15 +7,15 @@ from utils.plotting import plot_simulated_paths
 
 class MertonModel:
 
-    def __init__(self, S0: float, mu: float, sigma: float, T: float, num_steps: float, num_paths: float, lambda_j: float, mu_j: float, sigma_j: float) -> None:
-        
+    def __init__(self, S0: float, mu: float, sigma: float, T: float, num_steps: int, num_paths: int, lambda_j: float, mu_j: float, sigma_j: float) -> None:
+
         self._S0 = S0
         self._mu = mu
         self._sigma = sigma
         self._T = T
         self._num_steps = num_steps
         self._num_paths = num_paths
-        self._dt = T/num_steps
+        self._dt = T / num_steps
         self._lambda_j = lambda_j
         self._mu_j = mu_j
         self._sigma_j = sigma_j
