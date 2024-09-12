@@ -207,4 +207,4 @@ $$
 Corr(\epsilon_{S,t},\epsilon_{v,t})=\rho
 $$
 
-  Where $\epsilon_1$ and $\epsilon_2$ are correlated standard normal variables.
+  Where $\epsilon_S$ and $\epsilon_v$ are correlated standard normal variables.
