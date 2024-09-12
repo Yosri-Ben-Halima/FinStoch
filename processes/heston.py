@@ -53,7 +53,7 @@ class HestonModel:
         return S, v
     
     def plot(self, paths = None, ylabel = "Value", **kwargs):
-        if kwargs.get('variance', False):
+        if kwargs.get('variance', False)==True:
             plot_simulated_paths(self._t, self.simulate, paths, title="Heston Model", ylabel="Variance", **kwargs)
         else:
             plot_simulated_paths(self._t, self.simulate, paths, title="Heston Model", ylabel=ylabel, **kwargs)
