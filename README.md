@@ -199,4 +199,4 @@ $$
   v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_2
   $$
 
-  Where $ \epsilon_1 $ and $ \epsilon_2 $ are correlated standard normal variables.
+  Where $\epsilon_1$ and $\epsilon_2$ are correlated standard normal variables.
