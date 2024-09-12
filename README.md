@@ -163,7 +163,7 @@ T = 3.0             # Total time
 num_steps = 252     # Number of time steps (e.g., trading days in a year)
 num_paths = 10      # Number of simulation paths
 
-# Create an instance of the CoxIngersollRoss class
+# Create the Cox-Ingersoll-Ross model instance and plot
 cir = CoxIngersollRoss(S0=S0, mu=mu, sigma=sigma, theta=theta, T=T, num_steps=num_steps, num_paths=num_paths)
 
 # Simulate the CIR process
@@ -208,3 +208,35 @@ Corr(\epsilon_{S,t},\epsilon_{v,t})=\rho
 $$
 
   Where $\epsilon_S$ and $\epsilon_v$ are correlated standard normal variables.
+
+```python
+import numpy as np
+from FinStoch.processes import HestonModel
+
+# Parameters
+S0 = 100
+mu = 0.05
+T = 1.0
+num_steps = 252
+num_paths = 10
+kappa = 1.5
+theta = 0.04
+sigma = 0.3
+rho = -0.7
+v0 = 0.02
+
+# Create the Heston model instance and plot
+heston = HestonModel(S0, v0, mu, sigma, theta, kappa, rho, T, num_steps, num_paths)
+
+# Simulate the Heston model
+simulated_paths = heston.simulate()
+
+# Plot the simulated paths
+# Values
+heston.plot(paths=simulated_paths)
+# Variance
+heston.plot(paths=simulated_paths,variance=True)
+```
+
+![Plot](image/heston_val.png)
+![Plot](image/heston_vol.png)
