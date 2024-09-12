@@ -5,16 +5,20 @@
 ### Geometric Brownian Motion
 
 - **SDE**
-  $$
-  dS_t = \mu S_t \, dt + \sigma S_t \, dW_t
-  $$
+
+$$
+dS_t = \mu S_t  dt + \sigma S_t dW_t
+$$
+  
   - A stochastic process where the logarithm of the variable follows a Brownian motion with drift, representing continuous growth with random fluctuations.
   
 - **Euler-Maruyama Discretization**
-  $$
-  S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{\sigma^2}{2}\right)\Delta t+\sigma\sqrt{\Delta t}.\epsilon_t}
-  $$
-  Where $ \epsilon_t \sim \mathcal{N}(0, 1) $.
+
+$$
+S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{\sigma^2}{2}\right)\Delta t+\sigma\sqrt{\Delta t}\epsilon_t}
+$$
+  
+  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
 
 ```python
 import numpy as np
@@ -43,16 +47,18 @@ gbm.plot(paths=simulated_paths)
 ### Merton's Jump Diffusion Model
 
 - **SDE**
-  $$
-  dS_t = \mu S_t \, dt + \sigma S_t \, dW_t + S_t \, dJ_t
-  $$
+  
+$$
+dS_t = \mu S_t  dt + \sigma S_t  dW_t + S_t  dJ_t  
+$$
+  
   - An extension of the geometric Brownian motion that incorporates sudden, discrete jumps $ J_t $ in addition to continuous diffusion, capturing both regular volatility and occasional large shocks.
 
 - **Euler-Maruyama Discretization**
-  $$
-  S_{t+\Delta t} = S_t . e^{\left( \mu - \frac{1}{2} \sigma^2 \right) \Delta t + \sigma \sqrt{\Delta t} . \epsilon_t + J_t }
-  $$
-  Where $ \epsilon_t \sim \mathcal{N}(0, 1) $ and $ J_t $ is the jump component at time $ t $.
+$$
+S_{t+\Delta t} = S_t . e^{\left( \mu - \frac{1}{2} \sigma^2 \right) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t + J_t }
+$$
+  Where $\epsilon_t \sim \mathcal{N}(0, 1)$ and $J_t$ is the jump component at time $t$.
 
 ```python
 import numpy as np
@@ -84,15 +90,17 @@ merton.plot(paths=simulated_paths)
 ### Ornstein-Uhlenbeck model
 
 - **SDE**
-  $$
-  dx_t = \theta (\mu - x_t) \, dt + \sigma \, dW_t
-  $$
+
+$$
+dS_t = \theta (\mu - S_t)  dt + \sigma dW_t
+$$
   - A mean-reverting stochastic process where the variable fluctuates around a long-term mean with a tendency to revert back, driven by continuous noise.
 
 - **Euler-Maruyama Discretization**
-  $$
-  x_{t+\Delta t} = x_t + \theta (\mu - x_t) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t
-  $$
+
+$$
+S_{t+\Delta t} = S_t + \theta (\mu - S_t) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t
+$$
 
 ```python
 import numpy as np
@@ -122,15 +130,17 @@ ou.plot(paths=simulated_paths)
 ### Cox-Ingersoll-Ross Model
 
 - **SDE**
-  $$
-  dS_t = \kappa (\theta - S_t) \, dt + \sigma \sqrt{S_t} \, dW_t
-  $$
+
+$$
+dS_t = \kappa (\theta - S_t)  dt + \sigma \sqrt{S_t} dW_t
+$$
   - A mean-reverting process with volatility that depends on the current level of the variable, ensuring the values are always non-negative.
 
 - **Euler-Maruyama Discretization**
-  $$
-  S_{t+\Delta t} = S_t + \kappa (\theta - S_t) \Delta t + \sigma \sqrt{S_t} \sqrt{\Delta t} \epsilon_t
-  $$
+  
+$$
+S_{t+\Delta t} = S_t + \kappa (\theta - S_t) \Delta t + \sigma \sqrt{S_t} \sqrt{\Delta t} \epsilon_t
+$$
 
 ```python
 import numpy as np
@@ -160,19 +170,27 @@ cir.plot(paths=simulated_paths)
 ### Heston Stochastic Volatility Model
 
 - **SDEs**
-  $$
-  dS_t = \mu S_t \, dt + \sqrt{v_t} S_t \, dW_1
-  $$
-  $$
-  dv_t = \kappa (\theta - v_t) \, dt + \sigma_v \sqrt{v_t} \, dW_2
-  $$
+
+$$
+dS_t = \mu S_t  dt + \sqrt{v_t} S_t  dW_1
+$$
+
+$$
+dv_t = \kappa (\theta - v_t)  dt + \sigma_v \sqrt{v_t}  dW_2
+$$
+
   - A stochastic volatility model where the volatility of a variable follows its own mean-reverting process, allowing for time-varying volatility that evolves over time.
 
 - **Euler-Maruyama Discretization**
-  $$
-  S_{t+\Delta t} = S_t + \mu S_t \Delta t + \sqrt{v_t} S_t \sqrt{\Delta t} \epsilon_1
-  $$
-  $$
-  v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_2
-  $$
-  Where $ \epsilon_1 $ and $ \epsilon_2 $ are correlated standard normal variables.
+  
+$$
+S_{t+\Delta t} = S_t + \mu S_t \Delta t + \sqrt{v_t} S_t \sqrt{\Delta t} \epsilon_1
+$$
+  
+$$
+v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_2
+$$
+  
+  Where $\epsilon_1$ and $\epsilon_2$ are correlated standard normal variables.
+
+  
