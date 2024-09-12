@@ -180,11 +180,15 @@ cir.plot(paths=simulated_paths)
 - **SDEs**
 
 $$
-dS_t = \mu S_t  dt + \sqrt{v_t} S_t  dW_1
+dS_t = \mu S_t  dt + \sqrt{v_t} S_t  dW_{S,t}
 $$
 
 $$
-dv_t = \kappa (\theta - v_t)  dt + \sigma_v \sqrt{v_t}  dW_2
+dv_t = \kappa (\theta - v_t)  dt + \sigma_v \sqrt{v_t}  dW_{v,t}
+$$
+
+$$
+dW_{S,t}\times dW_{v,t}=\rho dt
 $$
 
   - A stochastic volatility model where the volatility of a variable follows its own mean-reverting process, allowing for time-varying volatility that evolves over time.
@@ -192,11 +196,15 @@ $$
 - **Euler-Maruyama Discretization**
 
 $$
-S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{v_t}{2}\right)\Delta t+\sqrt{v_t}\sqrt{\Delta t}\epsilon_{1,t}}
+S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{v_t}{2}\right)\Delta t+\sqrt{v_t}\sqrt{\Delta t}\epsilon_{S,t}}
 $$
 
-  $$
-  v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_{2,t}
-  $$
+$$
+v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_{v,t}
+$$
+
+$$
+Corr(\epsilon_{S,t},\epsilon_{v,t})=\rho
+$$
 
   Where $\epsilon_1$ and $\epsilon_2$ are correlated standard normal variables.
