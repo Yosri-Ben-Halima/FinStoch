@@ -190,10 +190,13 @@ $$
   - A stochastic volatility model where the volatility of a variable follows its own mean-reverting process, allowing for time-varying volatility that evolves over time.
 
 - **Euler-Maruyama Discretization**
-  $$
-  S_{t+\Delta t} = S_t + \mu S_t \Delta t + \sqrt{v_t} S_t \sqrt{\Delta t} \epsilon_1
-  $$
+
+$$
+S_{t+\Delta t} = S_t + \mu S_t \Delta t + \sqrt{v_t} S_t \sqrt{\Delta t} \epsilon_1
+$$
+
   $$
   v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_2
   $$
+
   Where $ \epsilon_1 $ and $ \epsilon_2 $ are correlated standard normal variables.
