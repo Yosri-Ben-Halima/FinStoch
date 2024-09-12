@@ -192,7 +192,7 @@ $$
 - **Euler-Maruyama Discretization**
 
 $$
-S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{\sigma^2}{2}\right)\Delta t+\sqrt{v_t}\sqrt{\Delta t}\epsilon_t}
+S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{v_t}{2}\right)\Delta t+\sqrt{v_t}\sqrt{\Delta t}\epsilon_t}
 $$
 
   $$
