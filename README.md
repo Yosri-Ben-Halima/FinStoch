@@ -192,11 +192,11 @@ $$
 - **Euler-Maruyama Discretization**
 
 $$
-S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{v_t}{2}\right)\Delta t+\sqrt{v_t}\sqrt{\Delta t}\epsilon_t}
+S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{v_t}{2}\right)\Delta t+\sqrt{v_t}\sqrt{\Delta t}\epsilon_{1,t}}
 $$
 
   $$
-  v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_2
+  v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_{2,t}
   $$
 
   Where $\epsilon_1$ and $\epsilon_2$ are correlated standard normal variables.
