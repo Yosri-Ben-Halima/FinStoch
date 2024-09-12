@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
-def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Paths", ylabel = "Price"):
+from typing import Tuple   
+
+def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Paths", ylabel = None, **kwargs):
     """
     Plots the simulated paths.
 
@@ -12,6 +15,13 @@ def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Pat
     """
     if paths is None:
         paths = simulate_func()
+
+    if isinstance(paths, Tuple) and all(isinstance(arr, np.ndarray) for arr in paths):
+        S, v = paths
+        if kwargs.get('variance', False):
+            paths = v
+        else:
+            paths = S
 
     plt.plot(t, paths.T)
     plt.title(title)
