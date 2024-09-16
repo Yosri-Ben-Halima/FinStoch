@@ -8,3 +8,4 @@ dependencies.txt
 dependencies.json
 *.ipynb
 *.pyc
+__pycache__/
