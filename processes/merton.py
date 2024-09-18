@@ -1,8 +1,9 @@
+"""
+The `FinStoch.processes` module contains classes and methods for simulating various stochastic processes.
+"""
+
 import numpy as np 
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.random import generate_random_numbers # type: ignore
+from utils.random import generate_random_numbers
 from utils.plotting import plot_simulated_paths
 
 class MertonModel:

@@ -1,3 +1,7 @@
+"""
+The `FinStoch.processes` module contains classes and methods for simulating various stochastic processes.
+"""
+
 import numpy as np 
 from utils.random import generate_random_numbers 
 from utils.plotting import plot_simulated_paths
