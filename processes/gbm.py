@@ -13,7 +13,7 @@ class GeometricBrownianMotion:
     Attributes
     ----------
     S0 : float
-        The initial asset price.
+        The initial value.
     mu : float
         The drift or mean return of the asset.
     sigma : float
@@ -38,7 +38,7 @@ class GeometricBrownianMotion:
         Parameters
         ----------
         S0 : float
-            The initial asset price.
+            The initial value.
         mu : float
             The drift or mean return rate.
         sigma : float
@@ -77,7 +77,7 @@ class GeometricBrownianMotion:
         Returns
         -------
         np.ndarray
-            A 2D array of shape (num_paths, num_steps), where each row represents a simulated price path.
+            A 2D array of shape (num_paths, num_steps), where each row represents a simulated path of the variable.
         """
         S = np.zeros((self._num_paths, self._num_steps))
         S[:, 0] = self._S0
