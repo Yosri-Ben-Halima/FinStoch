@@ -1,13 +1,10 @@
 import numpy as np 
-import sys
-import os
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.random import generate_random_numbers 
 from utils.plotting import plot_simulated_paths
 from utils.timesteps import generate_date_range
 
 class GeometricBrownianMotion:
-    
+
     """
     A class to model the Geometric Brownian Motion (GBM) process for simulating asset prices.
 
