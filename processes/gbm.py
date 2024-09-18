@@ -18,9 +18,10 @@ class GeometricBrownianMotion:
         self._num_paths = num_paths
         self._dt = T/num_steps
         self._start_date = start_date
-        self._t = np.linspace(0, T, num_steps)
         if start_date is not None:
             self._t = generate_date_range(start_date, T, num_steps)
+        else :
+            self._t = np.linspace(0, T, num_steps)
 
     def simulate(self) -> np.ndarray:
         """
