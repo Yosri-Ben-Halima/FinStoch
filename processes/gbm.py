@@ -32,7 +32,7 @@ class GeometricBrownianMotion:
     t : np.ndarray
         The time or date range for the simulation steps.
     """
-
+    
     def __init__(self, S0: float, mu: float, sigma: float, T: float, num_steps: float, num_paths: float, start_date: str=None) -> None:
         """
         Initialize the parameters for the GBM model and set up the time or date steps.
