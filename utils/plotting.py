@@ -3,22 +3,35 @@ import numpy as np
 
 from typing import Tuple   
 
-def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Paths", ylabel = None, **kwargs):
+def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Paths", ylabel=None, **kwargs):
     """
     Plots the simulated paths.
 
-    ## Parameters:
-    - t: Time array used for plotting.
-    - simulate_func: The simulate method of the class instance.
-    - paths: Optional, a numpy array representing the simulated paths.
-    - title: Optional, the title for the plot.
+    Parameters
+    ----------
+    t : array-like
+        Time array used for plotting.
+    simulate_func : callable, optional
+        The simulate method of the class instance.
+    paths : numpy.ndarray, optional
+        A numpy array representing the simulated paths.
+    title : str, optional
+        The title for the plot.
+    ylabel : str, optional
+        The label for the y-axis.
+    **kwargs : dict
+        Additional keyword arguments.
+
+    Returns
+    -------
+    None
     """
     if paths is None:
         paths = simulate_func()
 
     if isinstance(paths, Tuple) and all(isinstance(arr, np.ndarray) for arr in paths):
         S, v = paths
-        if kwargs.get('variance', False)==True:
+        if kwargs.get('variance', False) is True:
             paths = v
         else:
             paths = S
@@ -27,5 +40,5 @@ def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Pat
     plt.title(title)
     plt.xlabel("Time")
     plt.ylabel(ylabel)
-    plt.grid()
+    plt.grid(kwargs.get('grid', True))
     plt.show()
