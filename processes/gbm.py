@@ -6,7 +6,10 @@ from utils.timesteps import generate_date_range
 class GeometricBrownianMotion:
 
     """
-    A class to model the Geometric Brownian Motion (GBM) process for simulating asset prices.
+    GeometricBrownianMotion
+    =======================
+
+    A class to model the Geometric Brownian Motion (GBM) process.
 
     Attributes
     ----------
