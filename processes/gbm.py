@@ -20,9 +20,9 @@ class GeometricBrownianMotion:
     _S0 : float
         The initial value of the asset or variable being modeled (protected).
     _mu : float
-        The drift or mean return rate of the process (protected).
+        The annualized drift or mean return rate of the process (protected).
     _sigma : float
-        The volatility or standard deviation of the returns (protected).
+        The annualized volatility or standard deviation of the returns (protected).
     __T : float
         The total time horizon for the simulation, calculated from the date range (private).
     __num_steps : int
@@ -46,32 +46,31 @@ class GeometricBrownianMotion:
         Simulates multiple paths of the GBM process and returns the simulated paths as a 2D array.
     
     plot(paths=None, title="Geometric Brownian Motion", ylabel='Value', **kwargs) -> None
-        Plots the simulated paths of the GBM process. If paths are provided, it will plot those paths;
-        otherwise, it will simulate new paths and plot them.
+        Plots the simulated paths of the GBM process. If paths are provided, it will plot those paths; otherwise, it will simulate new paths and plot them.
 
     Properties
     ----------
-    S0 : float
-        Getter and setter for the initial value of the asset.
-    mu : float
+    S0 :
+        Getter and setter for the initial value of the variable.
+    mu :
         Getter and setter for the drift rate.
-    sigma : float
+    sigma :
         Getter and setter for the volatility.
-    T : float
+    T :
         Getter for the time horizon of the simulation (private attribute).
-    num_steps : int
+    num_steps :
         Getter for the number of steps in the simulation (private attribute).
-    num_paths : int
+    num_paths :
         Getter and setter for the number of paths to simulate.
-    dt : float
+    dt :
         Getter for the time increment between steps (private attribute).
-    t : np.ndarray
+    t :
         Getter for the time steps or dates used in the simulation (private attribute).
-    start_date : str
+    start_date :
         Getter and setter for the start date.
-    end_date : str
+    end_date :
         Getter and setter for the end date.
-    granularity : str
+    granularity :
         Getter and setter for the time granularity.
     """
     
