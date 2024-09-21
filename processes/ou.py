@@ -157,7 +157,7 @@ class OrnsteinUhlenbeck :
         -------
         None
         """
-        plot_simulated_paths(self._t, self.simulate, paths, title=title, ylabel=ylabel, fig_size=fig_size, grid=kwargs.get('grid', True))
+        plot_simulated_paths(self.__t, self.simulate, paths, title=title, ylabel=ylabel, fig_size=fig_size, grid=kwargs.get('grid', True))
 
     @property
     def S0(self) -> float:
