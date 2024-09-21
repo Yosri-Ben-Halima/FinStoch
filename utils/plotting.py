@@ -3,7 +3,7 @@ import numpy as np
 
 from typing import Tuple   
 
-def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Paths", ylabel=None, **kwargs):
+def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Paths", ylabel=None, fig_size=None, **kwargs):
     """
     Plots the simulated paths.
 
@@ -36,9 +36,13 @@ def plot_simulated_paths(t, simulate_func=None, paths=None, title="Simulated Pat
         else:
             paths = S
 
+    if fig_size is not None:
+        fig = plt.figure(figsize=fig_size)
     plt.plot(t, paths.T)
     plt.title(title)
+    plt.xticks(rotation=20)
     plt.xlabel("Time")
     plt.ylabel(ylabel)
     plt.grid(kwargs.get('grid', True))
+    plt.tight_layout()
     plt.show()

@@ -30,22 +30,26 @@ $$
 import numpy as np
 from FinStoch.processes import GeometricBrownianMotion
 
-# Parameters
-S0 = 100           # Initial value
-mu = 0.05          # Drift coefficient
-sigma = 0.2        # Volatility
-T = 1.0            # Time horizon (1 year)
-num_steps = 252    # Number of time steps (252 trading days in a year)              
-num_paths = 10     # Number of simulated paths
-
-# Create Geometric Brownian Motion instance and plot
-gbm = GeometricBrownianMotion(S0, mu, sigma, T, num_steps, num_paths)
+S0 = 100                    # Initial value 
+mu = 0.05                   # Annualized Drift coefficient (expected return rate)
+sigma = 0.2                 # Annualized Volatility (standard deviation of returns)
+num_paths = 10              # Number of paths to simulate
+start_date = '2023-09-01'   # Start date for the simulation
+end_date = '2024-09-01'     # End date for the simulation
+granularity = 'D'           # Granularity in daily intervals
+    
+# Create the GBM model
+gbm = GeometricBrownianMotion(S0, mu, sigma, num_paths, start_date, end_date, granularity)
 
 # Simulate the GBM process
 simulated_paths = gbm.simulate()
 
 # Plot the simulated paths
-gbm.plot(paths=simulated_paths)
+gbm.plot(paths=simulated_paths, 
+         title='Stock Price under Geometric Brownian Motion Assumption', 
+         ylabel='Stock Price',
+         fig_size=(15,5)
+        )
 ```
 
 ![Plot](image/gbm.png)

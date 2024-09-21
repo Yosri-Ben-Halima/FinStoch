@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from processes.gbm import GeometricBrownianMotion
+from processes import GeometricBrownianMotion
 
 class TestGeometricBrownianMotion(unittest.TestCase):
 
@@ -8,57 +8,64 @@ class TestGeometricBrownianMotion(unittest.TestCase):
         self.S0 = 100.0
         self.mu = 0.05
         self.sigma = 0.2
-        self.T = 1.0
-        self.num_steps = 100
-        self.num_paths = 10
-        self.gbm = GeometricBrownianMotion(self.S0, self.mu, self.sigma, self.T, self.num_steps, self.num_paths)
+        self.num_paths = 5
+        self.start_date = '2023-01-01'
+        self.end_date = '2023-01-10'
+        self.granularity = 'D'
+        self.gbm = GeometricBrownianMotion(self.S0, self.mu, self.sigma, self.num_paths, self.start_date, self.end_date, self.granularity)
 
-    def test_initial_parameters(self):
+    def test_initialization(self):
+        # Assertions to verify the initialization values
         self.assertEqual(self.gbm.S0, self.S0)
         self.assertEqual(self.gbm.mu, self.mu)
         self.assertEqual(self.gbm.sigma, self.sigma)
-        self.assertEqual(self.gbm.T, self.T)
-        self.assertEqual(self.gbm.num_steps, self.num_steps)
         self.assertEqual(self.gbm.num_paths, self.num_paths)
+        self.assertEqual(self.gbm.start_date, self.start_date)
+        self.assertEqual(self.gbm.end_date, self.end_date)
+        self.assertEqual(self.gbm.granularity, self.granularity)
 
-    def test_simulate(self):
-        simulated_paths = self.gbm.simulate()
-        self.assertEqual(simulated_paths.shape, (self.num_paths, self.num_steps))
-        self.assertTrue(np.all(simulated_paths[:, 0] == self.S0))
+        # Check if the duration and number of steps are calculated correctly
+        self.assertAlmostEqual(self.gbm.T, 0.024640657084188913)
+        self.assertEqual(self.gbm.num_steps, 10)
 
-    def test_setters(self):
-        new_S0 = 120.0
-        new_mu = 0.1
-        new_sigma = 0.3
-        new_T = 2.0
-        new_num_steps = 200
-        new_num_paths = 20
-
+    def test_simulation(self):
+        # Simulate paths of the geometric Brownian motion
+        paths = self.gbm.simulate()
+        
+        # Check shape of the simulation output
+        self.assertEqual(paths.shape, (self.num_paths, self.gbm.num_steps))
+        
+        # Check the first value in each path equals the initial asset value
+        np.testing.assert_array_equal(paths[:, 0], np.full(self.num_paths, self.S0))
+    
+    def test_property_setters(self):
+        # Test changing S0
+        new_S0 = 150.0
         self.gbm.S0 = new_S0
-        self.gbm.mu = new_mu
-        self.gbm.sigma = new_sigma
-        self.gbm.T = new_T
-        self.gbm.num_steps = new_num_steps
-        self.gbm.num_paths = new_num_paths
-
         self.assertEqual(self.gbm.S0, new_S0)
+
+        # Test changing mu
+        new_mu = 0.1
+        self.gbm.mu = new_mu
         self.assertEqual(self.gbm.mu, new_mu)
+
+        # Test changing sigma
+        new_sigma = 0.3
+        self.gbm.sigma = new_sigma
         self.assertEqual(self.gbm.sigma, new_sigma)
-        self.assertEqual(self.gbm.T, new_T)
-        self.assertEqual(self.gbm.num_steps, new_num_steps)
-        self.assertEqual(self.gbm.num_paths, new_num_paths)
 
-    def test_dt_and_t(self):
-        self.assertAlmostEqual(self.gbm.dt, self.T / self.num_steps)
-        self.assertTrue(np.allclose(self.gbm.t, np.linspace(0, self.T, self.num_steps)))
+        # Test updating start_date recalculates time-related properties
+        new_start_date = '2023-01-05'
+        self.gbm.start_date = new_start_date
+        self.assertEqual(self.gbm.start_date, new_start_date)
+        self.assertEqual(self.gbm.num_steps, len(self.gbm.t))
 
-        new_T = 2.0
-        new_num_steps = 200
-        self.gbm.T = new_T
-        self.gbm.num_steps = new_num_steps
-
-        self.assertAlmostEqual(self.gbm.dt, new_T / new_num_steps)
-        self.assertTrue(np.allclose(self.gbm.t, np.linspace(0, new_T, new_num_steps)))
+    def test_granularity_change(self):
+        # Test updating granularity recalculates time steps and related properties
+        new_granularity = 'H'
+        self.gbm.granularity = new_granularity
+        self.assertEqual(self.gbm.granularity, new_granularity)
+        self.assertEqual(self.gbm.num_steps, len(self.gbm.t))
 
 if __name__ == '__main__':
     unittest.main()
