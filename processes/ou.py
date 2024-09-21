@@ -22,7 +22,7 @@ class OrnsteinUhlenbeck :
     _mu : float
         The long-term mean level to which the process reverts (protected).
     _sigma : float
-        The volatility of the process (protected).
+        The annualized volatility of the process (protected).
     _theta : float
         The speed of mean reversion (protected).
     __T : float
