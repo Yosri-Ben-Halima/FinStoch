@@ -5,36 +5,121 @@ The `FinStoch.processes` module contains classes and methods for simulating vari
 import numpy as np 
 from utils.random import generate_random_numbers
 from utils.plotting import plot_simulated_paths
-from utils.timesteps import generate_date_range
+from utils.timesteps import generate_date_range_with_granularity, date_range_duration
 
 class OrnsteinUhlenbeck :
 
-    def __init__(self, S0: float, mu: float, sigma: float, theta: float, T: float, num_steps: float, num_paths: float, start_date: str=None, end_date: str=None) -> None:
-        
+    """
+    OrnsteinUhlenbeck
+    ==================
+
+    A class to model the Ornstein-Uhlenbeck process, a stochastic process that exhibits mean-reverting behavior.
+
+    Attributes
+    ----------
+    _S0 : float
+        The initial value of the process (protected).
+    _mu : float
+        The long-term mean level to which the process reverts (protected).
+    _sigma : float
+        The volatility of the process (protected).
+    _theta : float
+        The speed of mean reversion (protected).
+    __T : float
+        The total time horizon for the simulation, calculated from the date range (private).
+    __num_steps : int
+        The number of discrete time steps in the simulation, based on the date range (private).
+    _num_paths : int
+        The number of paths (scenarios) to simulate (protected).
+    __dt : float
+        The time increment between steps, calculated as T / num_steps (private).
+    _start_date : str
+        The start date for the simulation, provided as a string (protected).
+    _end_date : str
+        The end date for the simulation, provided as a string (protected).
+    _granularity : str
+        The time granularity for simulation steps, given as a Pandas frequency string (protected).
+    __t : np.ndarray
+        A NumPy array representing the discrete time steps or dates for the simulation (private).
+
+    Methods
+    -------
+    simulate() -> np.ndarray
+        Simulates multiple paths of the Ornstein-Uhlenbeck process and returns the simulated paths as a 2D array.
+
+    plot(paths=None, title="Ornstein Uhlenbeck", ylabel='Value', **kwargs) -> None
+        Plots the simulated paths of the Ornstein-Uhlenbeck process. If paths are provided, it will plot those paths; otherwise, it will simulate new paths and plot them.
+
+    Properties
+    ----------
+    S0 :
+        Getter and setter for the initial value of the process.
+    mu :
+        Getter and setter for the long-term mean level.
+    sigma :
+        Getter and setter for the volatility.
+    theta :
+        Getter and setter for the speed of mean reversion.
+    T :
+        Getter for the time horizon of the simulation (private attribute).
+    num_steps :
+        Getter for the number of steps in the simulation (private attribute).
+    num_paths :
+        Getter and setter for the number of paths to simulate.
+    dt :
+        Getter for the time increment between steps (private attribute).
+    t :
+        Getter for the time steps or dates used in the simulation (private attribute).
+    start_date :
+        Getter and setter for the start date.
+    end_date :
+        Getter and setter for the end date.
+    granularity :
+        Getter and setter for the time granularity.
+    """
+    def __init__(self, S0: float, mu: float, sigma: float, theta: float, num_paths: float, start_date: str, end_date: str, granularity: str) -> None:
+        """
+        Initialize the Ornstein-Uhlenbeck process.
+
+        Parameters
+        ----------
+        S0 : float
+            The initial value of the process.
+        mu : float
+            The long-term mean level to which the process reverts.
+        sigma : float
+            The volatility of the process.
+        theta : float
+            The speed of mean reversion.
+        num_paths : int
+            The number of paths to simulate.
+        start_date : str
+            The start date for the simulation (e.g., '2023-09-01'). 
+        end_date : str
+            The end date for the simulation (e.g., '2023-09-01'). 
+        granularity : str
+            The time granularity for each step in the simulation (e.g., 'D' for daily). 
+        """
         self._S0 = S0
         self._mu = mu
         self._sigma = sigma
         self._theta = theta
-        self._T = T
-        self._num_steps = num_steps
-        self._num_paths = num_paths
-        self._dt = T/num_steps
+
         self._start_date = start_date
         self._end_date = end_date
-        if start_date is not None:
-            self._t = generate_date_range(self._start_date, self._T, self._num_steps)
-        else :
-            self._t = np.linspace(0, self._T, self._num_steps)
+        self._granularity = granularity
+        self.__t = generate_date_range_with_granularity(self._start_date, self._end_date, self._granularity)
+        
+        self.__T = date_range_duration(self.__t)
+        self.__num_steps = len(self.__t)
+        self.__dt = self.__T/self.__num_steps
+        
+        self._num_paths = num_paths
 
     def simulate(self) -> float:
         """
         Simulates a path of the Ornstein Uhlenbeck model.
 
-        Parameters
-        ----------
-        self : OrnsteinUhlenbeck
-            Instance of OrnsteinUhlenbeck class.
-        
         Returns
         -------
         np.ndarray
@@ -51,7 +136,7 @@ class OrnsteinUhlenbeck :
 
         return S
 
-    def plot(self, paths=None, title="Ornstein Uhlenbeck", ylabel='Value', **kwargs):
+    def plot(self, paths=None, title="Ornstein Uhlenbeck", ylabel='Value', fig_size: tuple=None, **kwargs):
         """
         Plots the simulated paths of the Ornstein Uhlenbeck model.
 
@@ -63,6 +148,8 @@ class OrnsteinUhlenbeck :
             Title for the plot. Default is 'Ornstein Uhlenbeck'.
         ylabel : str, optional
             Label for the y-axis. Default is 'Value'.
+        fig_size : tuple, optional
+            Size of the figure in inches. Default is None.
         **kwargs
             Additional keyword arguments to pass to the `plot_simulated_paths` function.
 
@@ -70,7 +157,7 @@ class OrnsteinUhlenbeck :
         -------
         None
         """
-        plot_simulated_paths(self._t, self.simulate, paths, title=title, ylabel=ylabel, grid=kwargs.get('grid', True))
+        plot_simulated_paths(self._t, self.simulate, paths, title=title, ylabel=ylabel, fig_size=fig_size, grid=kwargs.get('grid', True))
 
     @property
     def S0(self) -> float:
@@ -100,35 +187,17 @@ class OrnsteinUhlenbeck :
     def theta(self) -> float:
         return self._theta
 
-    @sigma.setter
+    @theta.setter
     def theta(self, value: float) -> None:
         self._theta = value
 
     @property
     def T(self) -> float:
-        return self._T
-
-    @T.setter
-    def T(self, value: float) -> None:
-        self._T = value
-        self._dt = value / self._num_steps
-        if self._start_date is not None:
-            self._t = generate_date_range(self._start_date, value, self._num_steps)
-        else :
-            self._t = np.linspace(0, value, self._num_steps)
+        return self.__T
 
     @property
     def num_steps(self) -> int:
-        return self._num_steps
-    
-    @num_steps.setter
-    def num_steps(self, value: int) -> None:
-        self._num_steps = value
-        self._dt = self._T / value
-        if self._start_date is not None:
-            self._t = generate_date_range(self._start_date, self._T, value)
-        else :
-            self._t = np.linspace(0, self._T, value)
+        return self.__num_steps
     
     @property
     def num_paths(self) -> int:
@@ -140,17 +209,44 @@ class OrnsteinUhlenbeck :
     
     @property
     def dt(self) -> float:
-        return self._dt
+        return self.__dt
     
     @property
     def t(self) -> np.ndarray:
-        return self._t
-    
+        return self.__t
+
     @property
-    def start_date(self) -> str:
+    def start_date(self) -> np.ndarray:
         return self._start_date
     
     @start_date.setter
     def start_date(self, value: str) -> None:
         self._start_date = value
-        self._t = generate_date_range(value, self._T, self._num_steps)
+        self.__t = generate_date_range_with_granularity(value, self._end_date, self._granularity)
+        self.__T = date_range_duration(self.__t)
+        self.__num_steps = len(self.__t)
+        self.__dt = self.__T/self.__num_steps   
+    
+    @property
+    def end_date(self) -> np.ndarray:
+        return self._end_date
+    
+    @end_date.setter
+    def end_date(self, value: str) -> None:
+        self._end_date = value
+        self.__t = generate_date_range_with_granularity(self._start_date, value, self._granularity)
+        self.__T = date_range_duration(self.__t)
+        self.__num_steps = len(self.__t)
+        self.__dt = self.__T/self.__num_steps
+    
+    @property
+    def granularity(self) -> np.ndarray:
+        return self._granularity
+    
+    @granularity.setter
+    def granularity(self, value: str) -> None:
+        self._granularity = value
+        self.__t = generate_date_range_with_granularity(self._start_date, self._end_date, value)
+        self.__T = date_range_duration(self.__t)
+        self.__num_steps = len(self.__t)
+        self.__dt = self.__T/self.__num_steps
