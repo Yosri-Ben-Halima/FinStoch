@@ -125,13 +125,13 @@ class OrnsteinUhlenbeck :
         np.ndarray
             A 2D array of shape (num_paths, num_steps), where each row represents a simulated path of the variable.
         """
-        S = np.zeros(( self._num_paths, self._num_steps))
+        S = np.zeros(( self._num_paths, self.__num_steps))
         S[:, 0] = self._S0
 
-        for t in range(1, self._num_steps):
+        for t in range(1, self.__num_steps):
             Z = generate_random_numbers('normal', self._num_paths, mean=0, stddev=1)
-            drift = self._theta * (self._mu - S[:, t - 1]) * self._dt
-            diffusion = self._sigma * np.sqrt(self._dt) * Z
+            drift = self._theta * (self._mu - S[:, t - 1]) * self.__dt
+            diffusion = self._sigma * np.sqrt(self.__dt) * Z
             S[:, t] = S[:, t - 1] + drift + diffusion
 
         return S

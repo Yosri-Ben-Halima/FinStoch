@@ -60,6 +60,12 @@ class TestGeometricBrownianMotion(unittest.TestCase):
         self.assertEqual(self.gbm.start_date, new_start_date)
         self.assertEqual(self.gbm.num_steps, len(self.gbm.t))
 
+        # Test changing end_date recalculates time-related properties
+        new_end_date = '2023-01-15'
+        self.gbm.end_date = new_end_date
+        self.assertEqual(self.gbm.end_date, new_end_date)
+        self.assertEqual(self.gbm.num_steps, len(self.gbm.t))
+
     def test_granularity_change(self):
         # Test updating granularity recalculates time steps and related properties
         new_granularity = 'H'
