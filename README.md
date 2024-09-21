@@ -119,22 +119,27 @@ import numpy as np
 from FinStoch.processes import OrnsteinUhlenbeck 
 
 # Parameters
-S0 = 100           # Initial value
-mu = 0.05          # Drift coefficient
-sigma = 0.2        # Volatility
-theta = 0.5        # Mean reversion rate
-T = 1.0            # Time horizon (1 year)
-num_steps = 252    # Number of time steps (252 trading days in a year)              
-num_paths = 10     # Number of simulated paths
+S0 = 100                    # Initial value
+mu = 100                    # Annualized drift coefficient
+sigma = 0.2                 # Anualized volatility
+theta = 0.5                 # Annualized mean reversion rate
+num_paths = 10              # Number of paths to simulate
+start_date = '2023-09-01'   # Start date for the simulation
+end_date = '2024-09-01'     # End date for the simulation
+granularity = 'D'           # Granularity in 10-minute intervals
 
 # Create Ornstein-Uhlenbeck model instance and plot
-ou = OrnsteinUhlenbeck(S0, mu, sigma, theta, T, num_steps, num_paths)
+ou = OrnsteinUhlenbeck(S0, mu, sigma, theta, num_paths, start_date, end_date, granularity)
 
 # Simulate the OU process
 simulated_paths = ou.simulate()
 
 # Plot the simulated paths
-ou.plot(paths=simulated_paths)
+ou.plot(paths=simulated_paths, 
+         title='Stock Price under the Ornstein Uhlenbeck model Assumption', 
+         ylabel='Stock Price',
+         fig_size=(15,5)
+        )
 ```
 
 ![Plot](image/ou.png)
