@@ -9,3 +9,4 @@ dependencies.json
 *.ipynb
 *.pyc
 **/__pycache__/
+notes.txt

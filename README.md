@@ -86,7 +86,7 @@ sigma_j = 0.1               # Standard deviation of jump size
 num_paths = 10              # Number of simulated paths
 start_date = '2023-09-01'   # Start date for the simulation
 end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in 10-minute intervals
+granularity = 'D'           # Granularity in daily intervals
 
 
 # Create Merton model instance and plot
@@ -120,6 +120,8 @@ $$
 S_{t+\Delta t} = S_t + \theta (\mu - S_t) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t
 $$
 
+  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
+
 ```python
 import numpy as np
 from FinStoch.processes import OrnsteinUhlenbeck 
@@ -132,7 +134,7 @@ theta = 0.5                 # Annualized mean reversion rate
 num_paths = 10              # Number of paths to simulate
 start_date = '2023-09-01'   # Start date for the simulation
 end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in 10-minute intervals
+granularity = 'D'           # Granularity in daily intervals
 
 # Create Ornstein-Uhlenbeck model instance and plot
 ou = OrnsteinUhlenbeck(S0, mu, sigma, theta, num_paths, start_date, end_date, granularity)
@@ -165,6 +167,8 @@ $$
 S_{t+\Delta t} = S_t + \kappa (\theta - S_t) \Delta t + \sigma \sqrt{S_t} \sqrt{\Delta t} \epsilon_t
 $$
 
+  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
+
 ```python
 import numpy as np
 from FinStoch.processes import CoxIngersollRoss 
@@ -189,6 +193,53 @@ cir.plot(paths=simulated_paths)
 ```
 
 ![Plot](image/cir.png)
+
+### Constant Elasticity of Variance Model
+
+- **SDE**
+
+$$
+dS_t = \mu S_t  dt + \sigma {S_t}^\gamma dW_t
+$$
+  
+  - A stochastic process that extends the Geometric Brownian Motion process.
+  
+- **Euler-Maruyama Discretization**
+
+$$
+S_{t+\Delta t} = S_t + \mu S_t \Delta t + \sigma {S_t}^\gamma \sqrt{\Delta t} \epsilon_t
+$$​
+
+  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
+
+```python
+import numpy as np 
+from FinStoch.processes import ConstantElasricityOfVariance
+
+S0 = 100                    # Initial value 
+mu = 0.05                   # Annualized Drift coefficient (expected return rate)
+sigma = 0.2                 # Annualized Volatility (standard deviation of returns)
+gamma = 1.2                 # Elasticity coefficient
+num_paths = 10              # Number of paths to simulate
+start_date = '2023-09-01'   # Start date for the simulation
+end_date = '2024-09-01'     # End date for the simulation
+granularity = 'D'           # Granularity in daily intervals
+    
+# Create the CEV model
+cev = ConstantElasricityOfVariance(S0, mu, sigma, gamma, num_paths, start_date, end_date, granularity)
+
+# Simulate the CEV process
+simulated_paths = cev.simulate()
+
+# Plot the simulated paths
+cev.plot(paths=simulated_paths, 
+         title='Stock Price under the Constant Elasricity of Variance Model Assumption', 
+         ylabel='Stock Price',
+         fig_size=(15,5)
+        )
+```
+
+![Plot](image/cev.png)
 
 ### Heston Stochastic Volatility Model
 
