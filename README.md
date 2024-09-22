@@ -216,7 +216,7 @@ $$​
 import numpy as np 
 from FinStoch.processes import ConstantElasricityOfVariance
 
-S0 = 100                    # Initial value 
+S0 = 100                    # Initial value
 mu = 0.05                   # Annualized Drift coefficient (expected return rate)
 sigma = 0.2                 # Annualized Volatility (standard deviation of returns)
 gamma = 1.2                 # Elasticity coefficient
