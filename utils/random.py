@@ -11,12 +11,16 @@ def generate_random_numbers(distribution: str, size: int, **kwargs) -> np.ndarra
     size : int
         The number of random numbers to generate.
     **kwargs : Additional parameters for the distribution.
-        For 'normal' distribution:
+        
+        For `normal` distribution:
+            
             mean : float, optional
                 The mean of the distribution (default is 0).
             stddev : float, optional
                 The standard deviation of the distribution (default is 1).
-        For 'poisson' distribution:
+        
+        For `poisson` distribution:
+            
             lam : float, optional
                 The lambda (rate) parameter of the distribution (default is 1).
 
