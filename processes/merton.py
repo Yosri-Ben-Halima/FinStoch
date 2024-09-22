@@ -8,40 +8,86 @@ from utils.plotting import plot_simulated_paths
 from utils.timesteps import generate_date_range_with_granularity, date_range_duration
 
 class MertonModel:
-
     """
     MertonModel
     ===========
 
     A class to simulate a jump diffusion process based on the Merton model.
 
+    This model extends the Black-Scholes model by incorporating jumps, which are modeled using a Poisson process.
+    The underlying asset price evolves according to a combination of continuous Brownian motion and discrete jumps.
+
     Attributes
     ----------
-    S0 : float
-        Initial value of the variable.
-    mu : float
-        The rift coefficient.
-    sigma : float
-        The volatility.
-    T : float
-        The time horizon (in years) for the simulation.
-    num_steps : int
-        Number of time steps for the simulation.
-    num_paths : int
-        Number of paths to simulate.
-    dt : float
-        The time increment between steps (T / num_steps).
-    lambda_j : float
-        Jump intensity.
-    mu_j : float
-        Mean of jump size.
-    sigma_j : float
-        Standard deviation of jump size.
-    start_date : str
-        The start date for the simulation. If not provided, time is treated numerically.
-    t : np.ndarray
-        The time or date range for the simulation steps.
+    _S0 : float
+        Initial value of the asset or process at the start date.
+    _mu : float
+        The annualized drift coefficient (protected).
+    _sigma : float
+        The annualized volatility (protected).
+    _lambda_j : float
+        The annualized rate of jumps (protected).
+    _mu_j : float
+        The mean of jump size (protected).
+    _sigma_j : float
+        The standard deviation of jump size (protected).
+    __T : float
+        The total time horizon for the simulation, calculated from the date range (private).
+    __num_steps : int
+        The number of discrete time steps in the simulation, based on the date range (private).
+    _num_paths : int
+        The number of paths (scenarios) to simulate (protected).
+    __dt : float
+        The time increment between steps, calculated as T / num_steps (private).
+    _start_date : str
+        The start date for the simulation, provided as a string (protected).
+    _end_date : str
+        The end date for the simulation, provided as a string (protected).
+    _granularity : str
+        The time granularity for simulation steps, given as a Pandas frequency string (protected).
+    __t : np.ndarray
+        A NumPy array representing the discrete time steps or dates for the simulation (private).
 
+    Methods
+    -------    
+    simulate() -> np.ndarray
+        Simulates multiple paths of the Merton model and returns the simulated paths as a 2D array.
+    
+    plot(paths=None, title="Merton Model", ylabel='Value', **kwargs) -> None
+        Plots the simulated paths of the Merton model. If paths are provided, it will plot those paths; otherwise, it will simulate new paths and plot them.    
+
+    Properties
+    ----------
+    S0 :
+        Getter and setter for the initial value of the process.
+    mu :
+        Getter and setter for the drift (expected return).
+    sigma :
+        Getter and setter for the volatility of the process.
+    lambda_j :
+        Getter and setter for the jump intensity parameter.
+    mu_j :
+        Getter and setter for the mean jump size.
+    sigma_j :
+        Getter and setter for the standard deviation of jump sizes.
+    num_paths :
+        Getter and setter for the number of paths to simulate.
+    T :
+        Getter for the time horizon of the simulation (private attribute).
+    num_steps :
+        Getter for the number of steps in the simulation (private attribute).
+    num_paths :
+        Getter and setter for the number of paths to simulate.
+    dt :
+        Getter for the time increment between steps (private attribute).
+    t :
+        Getter for the time steps or dates used in the simulation (private attribute).
+    start_date :
+        Getter and setter for the start date.
+    end_date :
+        Getter and setter for the end date.
+    granularity :
+        Getter and setter for the time granularity.
     """
 
     def __init__(self, S0: float, mu: float, sigma: float, lambda_j: float, mu_j: float, sigma_j: float, num_paths: int, start_date: str, end_date: str, granularity: str) -> None:
@@ -53,15 +99,15 @@ class MertonModel:
         S0 : float
             Initial value of the variable.
         mu : float
-            Drift coefficient.
+            The annualized drift coefficient.
         sigma : float
-            Volatility.
+            The annualized volatility.
         lambda_j : float
-            Jump intensity.
+            The annualized jump intensity.
         mu_j : float
-            Mean of jump size.
+            The annualized mean of jump size.
         sigma_j : float
-            Standard deviation of jump size.
+            The annualized standard deviation of jump size.
         num_paths : int
             The number of paths to simulate.
         start_date : str
