@@ -77,24 +77,30 @@ import numpy as np
 from FinStoch.processes import MertonModel
 
 # Parameters
-S0 = 100          # Initial value
-mu = 0.05         # Drift coefficient
-sigma = 0.2       # Volatility
-T = 1.0           # Time horizon (1 year)
-num_steps = 252   # Number of time steps (252 trading days in a year)
-num_paths = 10    # Number of simulated paths
-lambda_j = 1      # Jump intensity
-mu_j = 0.02       # Mean of jump size
-sigma_j = 0.1     # Standard deviation of jump size
+S0 = 100                    # Initial process value
+mu = 0.05                   # Drift coefficient
+sigma = 0.2                 # Volatility
+lambda_j = 1                # Jump intensity
+mu_j = 0.02                  # Mean of jump size
+sigma_j = 0.1               # Standard deviation of jump size
+num_paths = 10              # Number of simulated paths
+start_date = '2023-09-01'   # Start date for the simulation
+end_date = '2024-09-01'     # End date for the simulation
+granularity = 'D'           # Granularity in 10-minute intervals
+
 
 # Create Merton model instance and plot
-merton = MertonModel(S0, mu, sigma, T, num_steps, num_paths, lambda_j, mu_j, sigma_j)
+merton = MertonModel(S0, mu, sigma, lambda_j, mu_j, sigma_j, num_paths, start_date, end_date, granularity)
 
 # Simulate the Merton process
 simulated_paths = merton.simulate()
 
 # Plot the simulated paths
-merton.plot(paths=simulated_paths)
+merton.plot(paths=simulated_paths, 
+         title='Stock Price under the Merton Model Assumption', 
+         ylabel='Stock Price',
+         fig_size=(15,5)
+        )
 ```
 
 ![Plot](image/merton.png)
