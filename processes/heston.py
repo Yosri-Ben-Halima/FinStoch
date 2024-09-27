@@ -132,7 +132,7 @@ class HestonModel:
         Returns
         -------
         np.ndarray
-            A tuple of two 2D arrays representing simulated asset prices and volatilities. 
+            A tuple of two 2D arrays representing simulated asset prices and volatilities, where each row represents a simulated path. 
             The first array has the shape (num_paths, num_steps) for process values (e.g. asset prices), and the second array has the same shape for volatilities.
         """
         S = np.zeros((self._num_paths, self.__num_steps))

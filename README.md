@@ -174,22 +174,27 @@ import numpy as np
 from FinStoch.processes import CoxIngersollRoss 
 
 # Parameters 
-S0 = 0.03           # Initial value
-mu = 0.03           # Long-term mean
-sigma = 0.1         # Volatility
-theta = 0.03        # Speed of reversion
-T = 3.0             # Total time
-num_steps = 252     # Number of time steps (e.g., trading days in a year)
-num_paths = 10      # Number of simulation paths
+S0 = 0.03                   # Initial value
+mu = 0.03                   # Long-term mean
+sigma = 0.1                 # Volatility
+theta = 0.03                # Speed of reversion
+num_paths = 10              # Number of simulation paths
+start_date = '2023-09-01'   # Start date for the simulation
+end_date = '2024-09-01'     # End date for the simulation
+granularity = 'D'           # Granularity in daily intervals
 
-# Create the Cox-Ingersoll-Ross model instance and plot
-cir = CoxIngersollRoss(S0=S0, mu=mu, sigma=sigma, theta=theta, T=T, num_steps=num_steps, num_paths=num_paths)
+# Create an instance of the CoxIngersollRoss class
+cir = CoxIngersollRoss(S0, mu, sigma, theta, num_paths, start_date, end_date, granularity)
 
 # Simulate the CIR process
 simulated_paths = cir.simulate()
 
 # Plot the simulated paths
-cir.plot(paths=simulated_paths)
+cir.plot(paths=simulated_paths, 
+         title='Rate under the CIR model Assumption', 
+         ylabel='Rate',
+         fig_size=(15,5)
+        )
 ```
 
 ![Plot](image/cir.png)
