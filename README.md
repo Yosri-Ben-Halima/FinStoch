@@ -81,7 +81,7 @@ S0 = 100                    # Initial process value
 mu = 0.05                   # Drift coefficient
 sigma = 0.2                 # Volatility
 lambda_j = 1                # Jump intensity
-mu_j = 0.02                  # Mean of jump size
+mu_j = 0.02                 # Mean of jump size
 sigma_j = 0.1               # Standard deviation of jump size
 num_paths = 10              # Number of simulated paths
 start_date = '2023-09-01'   # Start date for the simulation
@@ -280,28 +280,37 @@ import numpy as np
 from FinStoch.processes import HestonModel
 
 # Parameters
-S0 = 100           # Initial value
-v0 = 0.02          # Initial volatility
-mu = 0.05          # Long-term mean of the value
-theta = 0.04       # Long-term mean of the volatility
-sigma = 0.3        # Volatility of the volatility
-kappa = 1.5        # Speed of reversion
-rho = -0.7         # Correlation between shocks
-T = 1.0            # Total time
-num_steps = 252    # Number of time steps (e.g., trading days in a year)
-num_paths = 10     # Number of simulation paths
+S0 = 100                    # Initial value
+v0 = 0.02                   # Initial volatility
+mu = 0.05                   # Long-term mean of the value
+theta = 0.04                # Long-term mean of the volatility
+sigma = 0.3                 # Volatility of the volatility
+kappa = 1.5                 # Speed of reversion
+rho = -0.7                  # Correlation between shocks
+num_paths = 10              # Number of simulation paths
+start_date = '2023-09-01'   # Start date for the simulation
+end_date = '2024-09-01'     # End date for the simulation
+granularity = 'D'           # Granularity in daily intervals
 
-# Create the Heston model instance and plot
-heston = HestonModel(S0, v0, mu, sigma, theta, kappa, rho, T, num_steps, num_paths)
+# Initialize Heston model
+heston = HestonModel(S0, v0, mu, sigma, theta, kappa, rho, num_paths, start_date, end_date, granularity)
 
 # Simulate the Heston model
 simulated_paths = heston.simulate()
 
 # Plot the simulated paths
-# Values
-heston.plot(paths=simulated_paths)
-# Variance
-heston.plot(paths=simulated_paths,variance=True)
+heston.plot(paths=simulated_paths,
+            title='Asset Price under the Heston model Assumption', 
+            ylabel='Asset Price',
+            fig_size=(15,5)
+        )
+
+heston.plot(paths=simulated_paths,
+            title='Asset Volatility under the Heston model Assumption', 
+            ylabel='Asset Volatility',
+            variance=True,
+            fig_size=(15,5)
+            )
 ```
 
 ![Plot](image/heston_val.png)
