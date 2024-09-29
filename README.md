@@ -59,7 +59,7 @@ gbm.plot(paths=simulated_paths,
 - **SDE**
   
 $$
-dS_t = \mu S_t  dt + \sigma S_t  dW_t + S_t  dJ_t  
+dS_t = \left(\mu - \lambda_j\left( e^{\mu_j+\frac{\sigma_j^2}{2}} - 1\right) \right) S_t  dt + \sigma S_t  dW_t + S_t \left( \prod_{i=1}^{dN_t} Y_i - 1\right) 
 $$
   
   - An extension of the geometric Brownian motion that incorporates sudden, discrete jumps $ J_t $ in addition to continuous diffusion, capturing both regular volatility and occasional large shocks.
@@ -67,22 +67,22 @@ $$
 - **Euler-Maruyama Discretization**
 
 $$
-S_{t+\Delta t} = S_t . e^{\left( \mu - \frac{1}{2} \sigma^2 \right) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t + J_t }
+S_{t+\Delta t} = S_t . e^{\left( \mu - \frac{1}{2} \sigma^2 -\lambda_j\left( e^{\mu_j+\frac{\sigma_j^2}{2}} - 1\right)\right) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t + J_t }
 $$
 
   Where $\epsilon_t \sim \mathcal{N}(0, 1)$ and $J_t$ is the jump component at time $t$.
 
 ```python
 import numpy as np
-from FinStoch.processes import MertonModel
+from FinStoch.processes import MertonJumpDiffusion
 
 # Parameters
 S0 = 100                    # Initial process value
 mu = 0.05                   # Drift coefficient
 sigma = 0.2                 # Volatility
 lambda_j = 1                # Jump intensity
-mu_j = 0.02                 # Mean of jump size
-sigma_j = 0.1               # Standard deviation of jump size
+mu_j = 0.0                  # Mean of jump size
+sigma_j = 0.15              # Standard deviation of jump size
 num_paths = 10              # Number of simulated paths
 start_date = '2023-09-01'   # Start date for the simulation
 end_date = '2024-09-01'     # End date for the simulation
@@ -90,7 +90,7 @@ granularity = 'D'           # Granularity in daily intervals
 
 
 # Create Merton model instance and plot
-merton = MertonModel(S0, mu, sigma, lambda_j, mu_j, sigma_j, num_paths, start_date, end_date, granularity)
+merton = MertonJumpDiffusion(S0, mu, sigma, lambda_j, mu_j, sigma_j, num_paths, start_date, end_date, granularity)
 
 # Simulate the Merton process
 simulated_paths = merton.simulate()

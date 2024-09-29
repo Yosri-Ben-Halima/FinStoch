@@ -3,13 +3,13 @@ The `FinStoch.processes` module contains classes and methods for simulating vari
 """
 
 from .gbm import GeometricBrownianMotion
-from .merton import MertonModel
+from .merton import MertonJumpDiffusion
 from .ou import OrnsteinUhlenbeck
 from .cir import CoxIngersollRoss
 from .heston import HestonModel
 from .cev import ConstantElasricityOfVariance
 
-__all__ = ['GeometricBrownianMotion', 'MertonModel', 'OrnsteinUhlenbeck', 'CoxIngersollRoss', 'HestonModel', 'ConstantElasricityOfVariance']
+__all__ = ['GeometricBrownianMotion', 'MertonJumpDiffusion', 'OrnsteinUhlenbeck', 'CoxIngersollRoss', 'HestonModel', 'ConstantElasricityOfVariance']
 
 __version__ = 'v1.0.0'
 

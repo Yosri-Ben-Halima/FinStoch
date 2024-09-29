@@ -7,9 +7,9 @@ from utils.random import generate_random_numbers
 from utils.plotting import plot_simulated_paths
 from utils.timesteps import generate_date_range_with_granularity, date_range_duration
 
-class MertonModel:
+class MertonJumpDiffusion:
     """
-    MertonModel
+    MertonJumpDiffusion
     ===========
 
     A class to simulate a jump diffusion process based on the Merton model.
@@ -147,13 +147,15 @@ class MertonModel:
         S = np.zeros((self._num_paths, self.__num_steps))
         S[:, 0] = self._S0
 
+        k = np.exp(self._mu_j + 0.5 * self._sigma_j**2) - 1
+
         for t in range(1, self.__num_steps):
             Z = generate_random_numbers('normal', self._num_paths, mean=0, stddev=1)
             N = generate_random_numbers('poisson', self._num_paths, lam=self._lambda_j * self.__dt)
             J = np.zeros(self._num_paths)
 
             J[N > 0] = generate_random_numbers('normal', np.sum(N > 0), mean=self._mu_j, stddev=self._sigma_j)
-            S[:, t] = S[:, t-1] * np.exp((self._mu - 0.5 * self._sigma**2) * self.__dt + self._sigma * np.sqrt(self.__dt) * Z + J)
+            S[:, t] = S[:, t-1] * np.exp((self._mu - 0.5 * self._sigma**2 - self._lambda_j * k) * self.__dt + self._sigma * np.sqrt(self.__dt) * Z + J)
 
         return S
 
