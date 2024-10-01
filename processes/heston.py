@@ -110,7 +110,7 @@ class HestonModel:
         self._v0 = v0
         self._mu = mu
         self._sigma = sigma
-        self.__theta = theta
+        self._theta = theta
         self._kappa = kappa
         self._rho = rho
 
@@ -149,7 +149,7 @@ class HestonModel:
             Ws = X[0]
             Wv = X[1]
             
-            v[:, t] = np.maximum(v[:, t - 1] + self._kappa * (self.__theta - v[:, t - 1]) * self.__dt + self._sigma * np.sqrt(v[:, t - 1]) * np.sqrt(self.__dt) * Wv, 0)
+            v[:, t] = np.maximum(v[:, t - 1] + self._kappa * (self._theta - v[:, t - 1]) * self.__dt + self._sigma * np.sqrt(v[:, t - 1]) * np.sqrt(self.__dt) * Wv, 0)
             S[:, t] = S[:, t - 1] * np.exp((self._mu - 0.5 * v[:, t-1]) * self.__dt + np.sqrt(v[:, t-1]) * np.sqrt(self.__dt) * Ws)
 
         return S, v
@@ -224,11 +224,11 @@ class HestonModel:
     
     @property
     def theta(self) -> float:
-        return self.__theta
+        return self._theta
     
     @theta.setter
     def theta(self, value: float) -> None:
-        self.__theta = value
+        self._theta = value
     
     @property
     def kappa(self) -> float:
