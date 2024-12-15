@@ -2,10 +2,13 @@
 The `FinStoch.processes` module contains classes and methods for simulating various stochastic processes.
 """
 
-import numpy as np 
+import numpy as np
+from pandas import DatetimeIndex
 from utils.random import generate_random_numbers
 from utils.plotting import plot_simulated_paths
 from utils.timesteps import generate_date_range_with_granularity, date_range_duration
+from typing import Optional
+
 
 class MertonJumpDiffusion:
     """
@@ -49,12 +52,12 @@ class MertonJumpDiffusion:
         A NumPy array representing the discrete time steps or dates for the simulation (private).
 
     Methods
-    -------    
+    -------
     simulate() -> np.ndarray
         Simulates multiple paths of the Merton model and returns the simulated paths as a 2D array.
-    
+
     plot(paths=None, title="Merton Model", ylabel='Value', **kwargs) -> None
-        Plots the simulated paths of the Merton model. If paths are provided, it will plot those paths; otherwise, it will simulate new paths and plot them.    
+        Plots the simulated paths of the Merton model. If paths are provided, it will plot those paths; otherwise, it will simulate new paths and plot them.
 
     Properties
     ----------
@@ -90,7 +93,19 @@ class MertonJumpDiffusion:
         Getter and setter for the time granularity.
     """
 
-    def __init__(self, S0: float, mu: float, sigma: float, lambda_j: float, mu_j: float, sigma_j: float, num_paths: int, start_date: str, end_date: str, granularity: str) -> None:
+    def __init__(
+        self,
+        S0: float,
+        mu: float,
+        sigma: float,
+        lambda_j: float,
+        mu_j: float,
+        sigma_j: float,
+        num_paths: int,
+        start_date: str,
+        end_date: str,
+        granularity: str,
+    ) -> None:
         """
         Initialize the parameters for the Merton model and set up the time or date steps.
 
@@ -111,9 +126,9 @@ class MertonJumpDiffusion:
         num_paths : int
             The number of paths to simulate.
         start_date : str
-            The start date for the simulation (e.g., '2023-09-01'). 
+            The start date for the simulation (e.g., '2023-09-01').
         end_date : str
-            The end date for the simulation (e.g., '2023-09-01'). 
+            The end date for the simulation (e.g., '2023-09-01').
         granularity : str
             The time granularity for each step in the simulation (e.g., 'D' for daily).
         """
@@ -127,12 +142,14 @@ class MertonJumpDiffusion:
         self._start_date = start_date
         self._end_date = end_date
         self._granularity = granularity
-        self.__t = generate_date_range_with_granularity(self._start_date, self._end_date, self._granularity)
-        
+        self.__t = generate_date_range_with_granularity(
+            self._start_date, self._end_date, self._granularity
+        )
+
         self.__T = date_range_duration(self.__t)
         self.__num_steps = len(self.__t)
-        self.__dt = self.__T/self.__num_steps
-        
+        self.__dt = self.__T / self.__num_steps
+
         self._num_paths = num_paths
 
     def simulate(self) -> np.ndarray:
@@ -150,16 +167,31 @@ class MertonJumpDiffusion:
         k = np.exp(self._mu_j + 0.5 * self._sigma_j**2) - 1
 
         for t in range(1, self.__num_steps):
-            Z = generate_random_numbers('normal', self._num_paths, mean=0, stddev=1)
-            N = generate_random_numbers('poisson', self._num_paths, lam=self._lambda_j * self.__dt)
+            Z = generate_random_numbers("normal", self._num_paths, mean=0, stddev=1)
+            N = generate_random_numbers(
+                "poisson", self._num_paths, lam=self._lambda_j * self.__dt
+            )
             J = np.zeros(self._num_paths)
 
-            J[N > 0] = generate_random_numbers('normal', np.sum(N > 0), mean=self._mu_j, stddev=self._sigma_j)
-            S[:, t] = S[:, t-1] * np.exp((self._mu - 0.5 * self._sigma**2 - self._lambda_j * k) * self.__dt + self._sigma * np.sqrt(self.__dt) * Z + J)
+            J[N > 0] = generate_random_numbers(
+                "normal", int(np.sum(N > 0)), mean=self._mu_j, stddev=self._sigma_j
+            )
+            S[:, t] = S[:, t - 1] * np.exp(
+                (self._mu - 0.5 * self._sigma**2 - self._lambda_j * k) * self.__dt
+                + self._sigma * np.sqrt(self.__dt) * Z
+                + J
+            )
 
         return S
 
-    def plot(self, paths=None, title="Merton Model", ylabel='Value', fig_size: tuple=None, **kwargs):
+    def plot(
+        self,
+        paths=None,
+        title="Merton Model",
+        ylabel="Value",
+        fig_size: Optional[tuple] = None,
+        **kwargs,
+    ):
         """
         Plots the simulated paths of the Merton model.
 
@@ -180,8 +212,16 @@ class MertonJumpDiffusion:
         -------
         None
         """
-        plot_simulated_paths(self.__t, self.simulate, paths, title=title, ylabel=ylabel, fig_size=fig_size, grid=kwargs.get('grid', True))
-    
+        plot_simulated_paths(
+            self.__t,
+            self.simulate,
+            paths,
+            title=title,
+            ylabel=ylabel,
+            fig_size=fig_size,
+            grid=kwargs.get("grid", True),
+        )
+
     @property
     def S0(self) -> float:
         return self._S0
@@ -213,19 +253,19 @@ class MertonJumpDiffusion:
     @lambda_j.setter
     def lambda_j(self, value: float) -> None:
         self._lambda_j = value
-    
+
     @property
     def mu_j(self) -> float:
         return self._mu_j
-    
+
     @mu_j.setter
     def mu_j(self, value: float) -> None:
         self._mu_j = value
-    
+
     @property
     def sigma_j(self) -> float:
         return self._sigma_j
-    
+
     @sigma_j.setter
     def sigma_j(self, value: float) -> None:
         self._sigma_j = value
@@ -237,7 +277,7 @@ class MertonJumpDiffusion:
     @property
     def num_steps(self) -> int:
         return self.__num_steps
-    
+
     @property
     def num_paths(self) -> int:
         return self._num_paths
@@ -245,47 +285,53 @@ class MertonJumpDiffusion:
     @num_paths.setter
     def num_paths(self, value: int) -> None:
         self._num_paths = value
-    
+
     @property
     def dt(self) -> float:
         return self.__dt
-    
+
     @property
-    def t(self) -> np.ndarray:
+    def t(self) -> DatetimeIndex:
         return self.__t
 
     @property
-    def start_date(self) -> np.ndarray:
+    def start_date(self) -> str:
         return self._start_date
-    
+
     @start_date.setter
     def start_date(self, value: str) -> None:
         self._start_date = value
-        self.__t = generate_date_range_with_granularity(value, self._end_date, self._granularity)
+        self.__t = generate_date_range_with_granularity(
+            value, self._end_date, self._granularity
+        )
         self.__T = date_range_duration(self.__t)
         self.__num_steps = len(self.__t)
-        self.__dt = self.__T/self.__num_steps   
-    
+        self.__dt = self.__T / self.__num_steps
+
     @property
-    def end_date(self) -> np.ndarray:
+    def end_date(self) -> str:
         return self._end_date
-    
+
     @end_date.setter
     def end_date(self, value: str) -> None:
         self._end_date = value
-        self.__t = generate_date_range_with_granularity(self._start_date, value, self._granularity)
+        self.__t = generate_date_range_with_granularity(
+            self._start_date, value, self._granularity
+        )
         self.__T = date_range_duration(self.__t)
         self.__num_steps = len(self.__t)
-        self.__dt = self.__T/self.__num_steps
-    
+        self.__dt = self.__T / self.__num_steps
+
     @property
-    def granularity(self) -> np.ndarray:
+    def granularity(self) -> str:
         return self._granularity
-    
+
     @granularity.setter
     def granularity(self, value: str) -> None:
         self._granularity = value
-        self.__t = generate_date_range_with_granularity(self._start_date, self._end_date, value)
+        self.__t = generate_date_range_with_granularity(
+            self._start_date, self._end_date, value
+        )
         self.__T = date_range_duration(self.__t)
         self.__num_steps = len(self.__t)
-        self.__dt = self.__T/self.__num_steps
+        self.__dt = self.__T / self.__num_steps

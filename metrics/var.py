@@ -1,10 +1,11 @@
 import numpy as np
 
+
 class ValueAtRisk:
     def __init__(self, simulated_paths: np.ndarray):
         """
         Initialize the Value at Risk class with simulated paths.
-        
+
         Parameters
         ----------
         simulated_paths : np.ndarray
@@ -15,12 +16,12 @@ class ValueAtRisk:
     def calculate(self, confidence_level: float) -> float:
         """
         Calculate Value at Risk (VaR) at a given confidence level.
-        
+
         Parameters
         ----------
         confidence_level : float
             The confidence level for VaR (e.g., 0.95 for 95% confidence).
-        
+
         Returns
         -------
         float

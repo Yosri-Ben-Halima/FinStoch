@@ -2,18 +2,19 @@
 The `FinStoch.processes` module contains classes and methods for simulating various stochastic processes.
 """
 
-import numpy as np 
-from utils.random import generate_random_numbers 
+import numpy as np
+from utils.random import generate_random_numbers
 from utils.plotting import plot_simulated_paths
 from utils.timesteps import generate_date_range_with_granularity, date_range_duration
+
 
 class BatesModel:
     """
     BatesModel
     ==========
-    
+
     A class to model the Bates process, a stochastic process that exhibits jump diffusion with stochastic volatility.
-    
+
     Attributes
     ----------
     _S0 : float
@@ -48,8 +49,24 @@ class BatesModel:
         A NumPy array representing the discrete time steps or dates for the simulation (private).
 
     """
-    
-    def __init__(self, S0: float, v0: float, mu: float, sigma: float, theta: float, kappa: float, rho: float, lambda_j: float, mu_j: float, sigma_j: float, num_paths: float, start_date: str, end_date: str, granularity: str) -> None:
+
+    def __init__(
+        self,
+        S0: float,
+        v0: float,
+        mu: float,
+        sigma: float,
+        theta: float,
+        kappa: float,
+        rho: float,
+        lambda_j: float,
+        mu_j: float,
+        sigma_j: float,
+        num_paths: float,
+        start_date: str,
+        end_date: str,
+        granularity: str,
+    ) -> None:
         """
         Initializes a BatesModel object.
 
@@ -98,10 +115,12 @@ class BatesModel:
         self._start_date = start_date
         self._end_date = end_date
         self._granularity = granularity
-        self.__t = generate_date_range_with_granularity(self._start_date, self._end_date, self._granularity)
-        
+        self.__t = generate_date_range_with_granularity(
+            self._start_date, self._end_date, self._granularity
+        )
+
         self.__T = date_range_duration(self.__t)
         self.__num_steps = len(self.__t)
-        self.__dt = self.__T/self.__num_steps
-        
+        self.__dt = self.__T / self.__num_steps
+
         self._num_paths = num_paths
