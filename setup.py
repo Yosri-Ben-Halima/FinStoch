@@ -9,7 +9,7 @@ setup(
     version="0.1.0",  # Initial version
     author="Yosri Ben Halima",  # Your name
     author_email="yosri.benhalima@ept.ucar.tn",  # Your email
-    description="A library for stochastic processes in financial modeling.",
+    description="A library for stochastic processes in financial modeling and financial metrics.",
     long_description=open("README.md").read(),  # Ensure you have a README.md
     long_description_content_type="text/markdown",
     url="https://github.com/Yosri-Ben-Halima/FinStoch",  # Replace with your repo URL

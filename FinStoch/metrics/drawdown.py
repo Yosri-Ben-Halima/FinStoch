@@ -12,10 +12,10 @@ class MaxDrawdown:
     def calculate(self) -> float:
         """
         Calculates the maximum drawdown from the given simulated paths.
-        
+
         Returns
         -------
-        float: 
+        float:
             The maximum drawdown.
         """
         cumulative_max = np.maximum.accumulate(self.simulated_paths, axis=1)
