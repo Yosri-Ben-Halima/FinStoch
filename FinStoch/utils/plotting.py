@@ -9,7 +9,7 @@ def plot_simulated_paths(
     simulate_func: Optional[
         Callable[[], Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]]
     ] = None,
-    paths: Optional[np.ndarray] = None,
+    paths: Optional[Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]] = None,
     title: str = "Simulated Paths",
     ylabel: Optional[str] = None,
     fig_size: Optional[Tuple] = None,
@@ -41,10 +41,14 @@ def plot_simulated_paths(
         paths is None
     ), "Exactly one of 'simulate_func' or 'paths' must be provided."
 
-    if paths is None:
+    if (paths is None) and (simulate_func is not None):
         paths = simulate_func()
 
-    if isinstance(paths, Tuple) and all(isinstance(arr, np.ndarray) for arr in paths):
+    if (
+        (paths is not None)
+        and isinstance(paths, tuple)
+        and all(isinstance(arr, np.ndarray) for arr in paths)
+    ):
         S, v = paths
         if kwargs.get("variance", False) is True:
             paths = v
@@ -53,7 +57,8 @@ def plot_simulated_paths(
 
     if fig_size is not None:
         plt.figure(figsize=fig_size)
-    plt.plot(t, paths.T)
+    if paths is not None and isinstance(paths, np.ndarray):
+        plt.plot(t, paths.T)
     plt.title(title)
     plt.xticks(rotation=20)
     plt.xlabel("Time")

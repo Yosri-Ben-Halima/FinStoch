@@ -52,5 +52,7 @@ class ValueAtRisk:
         # Calculate returns
         returns = np.diff(self.simulated_paths) / self.simulated_paths[:, :-1]
         # Calculate VaR
+        if confidence_level is None:
+            raise ValueError("Confidence level must be provided when alpha is not.")
         var_threshold = np.percentile(returns, (1 - confidence_level) * 100)
         return var_threshold
