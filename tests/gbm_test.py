@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from FinStoch.processes import GeometricBrownianMotion
+from processes import GeometricBrownianMotion
 
 
 class TestGeometricBrownianMotion(unittest.TestCase):
