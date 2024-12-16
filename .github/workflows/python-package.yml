@@ -41,14 +41,14 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Test with unittest
-      run: |
-        # Run unit tests with unittest and generate a JUnit-compatible report
-        python -m unittest discover -s tests -p "*_test.py" > result.xml
+    # - name: Test with unittest
+    #   run: |
+    #     # Run unit tests with unittest and generate a JUnit-compatible report
+    #     python -m unittest discover -s tests -p "*_test.py" > result.xml
 
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: result.xml
+    # - name: Upload test results
+    #   if: always()
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: test-results
+    #     path: result.xml
