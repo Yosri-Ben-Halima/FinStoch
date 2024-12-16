@@ -10,3 +10,4 @@ dependencies.json
 *.pyc
 **/__pycache__/
 notes.txt
+FinStoch.egg-info/

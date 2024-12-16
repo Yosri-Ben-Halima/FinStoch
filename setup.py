@@ -13,7 +13,9 @@ setup(
     long_description=open("README.md").read(),  # Ensure you have a README.md
     long_description_content_type="text/markdown",
     url="https://github.com/Yosri-Ben-Halima/FinStoch",  # Replace with your repo URL
-    packages=find_packages(include=["FinStoch", "FinStoch.*"]),  # Automatically find packages
+    packages=find_packages(
+        include=["FinStoch", "FinStoch.*"]
+    ),  # Automatically find packages
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",  # Choose your license

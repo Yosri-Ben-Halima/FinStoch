@@ -6,9 +6,9 @@ from typing import Optional, Tuple, Callable, Union
 
 def plot_simulated_paths(
     t,
-    simulate_func: Optional[Callable[
-        [], Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]
-    ]] = None,
+    simulate_func: Optional[
+        Callable[[], Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]]
+    ] = None,
     paths: Optional[np.ndarray] = None,
     title: str = "Simulated Paths",
     ylabel: Optional[str] = None,
