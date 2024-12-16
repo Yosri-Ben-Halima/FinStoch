@@ -54,7 +54,7 @@ jobs:
     
     - name: Type check with mypy
       run: |
-        mypy . --exclude venv --ignore-missing-imports
+        mypy . --exclude venv --ignore-missing-imports --install-types
 
     - name: Test with unittest
       run: |
