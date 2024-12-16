@@ -30,9 +30,22 @@ jobs:
 
     - name: Install dependencies
       run: |
+        pip install ruff
+        pip install no_implicit_optional
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         if (Test-Path requirements.txt) { pip install -r requirements.txt }
+
+    - name: Format code with ruff
+      run: |
+        ruff format
+
+    - name: Remove Implicit Optionals with no_implicit_optional
+      run: |
+          no_implicit_optional FinStoch/
+
+    - name: Test with pytest
+      run: |
 
     - name: Lint with flake8
       run: |
