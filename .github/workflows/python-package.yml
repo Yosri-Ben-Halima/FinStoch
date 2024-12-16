@@ -34,7 +34,7 @@ jobs:
         pip install ruff
         pip install no_implicit_optional
         python -m pip install --upgrade pip
-        pip install types-python-dateutil
+        python -m pip install types-python-dateutil
         python -m pip install flake8 pytest
         if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
