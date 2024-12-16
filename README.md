@@ -213,7 +213,7 @@ $$
 
 $$
 S_{t+\Delta t} = S_t + \mu S_t \Delta t + \sigma {S_t}^\gamma \sqrt{\Delta t} \epsilon_t
-$$​
+$$
 
   Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
 
