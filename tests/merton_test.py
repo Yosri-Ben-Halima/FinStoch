@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from processes import MertonJumpDiffusion
+from FinStoch.processes import MertonJumpDiffusion
 
 
 class TestMertonModel(unittest.TestCase):

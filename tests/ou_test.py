@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from processes import OrnsteinUhlenbeck
+from FinStoch.processes import OrnsteinUhlenbeck
 
 
 class TestOrnsteinUhlenbeck(unittest.TestCase):

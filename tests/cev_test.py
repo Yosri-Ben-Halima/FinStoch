@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from processes import ConstantElasricityOfVariance
+from FinStoch.processes import ConstantElasricityOfVariance
 
 
 class TestConstantElasricityOfVariance(unittest.TestCase):
