@@ -20,8 +20,10 @@ jobs:
         python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v4
-      name: Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
@@ -42,19 +44,19 @@ jobs:
       run: |
         ruff format
 
+    - name: Remove Implicit Optionals with no_implicit_optional
+      run: |
+        no_implicit_optional FinStoch/
+
     - name: Commit and push changes
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "Apply formatting with ruff" || echo "No changes to commit"
+        git commit -m "Apply formatting with ruff & removing implicit optionals with no_implicit_optional" || echo "No changes to commit"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Remove Implicit Optionals with no_implicit_optional
-      run: |
-        no_implicit_optional FinStoch/
 
     - name: Lint with flake8
       run: |
