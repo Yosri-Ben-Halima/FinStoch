@@ -64,7 +64,7 @@ class TestCoxIngersollRoss(unittest.TestCase):
         new_sigma = 0.3
         self.cir.sigma = new_sigma
         self.assertEqual(self.cir.sigma, new_sigma)
-        
+
         # Test changing theta
         new_theta = 0.7
         self.cir.theta = new_theta
