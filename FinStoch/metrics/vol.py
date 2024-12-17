@@ -15,7 +15,7 @@ class Volatility:
 
     def downside_vol(self) -> float:
         returns = np.diff(self.simulated_paths) / self.simulated_paths[:, :-1]
-        downside_returns = returns[returns < 0]
+        downside_returns = returns[returns <= 0]
         return np.std(downside_returns)
 
     def upside_vol(self) -> float:

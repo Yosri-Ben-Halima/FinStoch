@@ -7,7 +7,10 @@ from pandas import DatetimeIndex
 from typing import Optional, Tuple
 from FinStoch.utils.random import generate_random_numbers
 from FinStoch.utils.plotting import plot_simulated_paths
-from FinStoch.utils.timesteps import generate_date_range_with_granularity, date_range_duration
+from FinStoch.utils.timesteps import (
+    generate_date_range_with_granularity,
+    date_range_duration,
+)
 
 
 class HestonModel:
