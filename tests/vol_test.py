@@ -9,8 +9,11 @@ class TestVolatility(unittest.TestCase):
         Set up a simulated paths array for testing.
         """
         np.random.seed(42)  # For reproducibility
-        self.simulated_paths = (
-            np.cumsum(np.random.normal(0, 1, (1000, 252)), axis=1) + 100
+        self.simulated_paths = np.hstack(
+            (
+                np.full((1000, 1), 100),
+                np.cumsum(np.random.normal(0, 1, (1000, 252)), axis=1) + 100,
+            )
         )
         self.vol_calculator = Volatility(self.simulated_paths)
 
