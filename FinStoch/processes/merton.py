@@ -34,6 +34,8 @@ class MertonJumpDiffusion(StochasticProcess):
         The end date for the simulation.
     granularity : str
         The time granularity for each step.
+    business_days : bool, optional
+        If True, use business days instead of calendar days. Default is False.
     """
 
     def __init__(
@@ -48,11 +50,12 @@ class MertonJumpDiffusion(StochasticProcess):
         start_date: str,
         end_date: str,
         granularity: str,
+        business_days: bool = False,
     ) -> None:
         self._lambda_j = lambda_j
         self._mu_j = mu_j
         self._sigma_j = sigma_j
-        super().__init__(S0, mu, sigma, num_paths, start_date, end_date, granularity)
+        super().__init__(S0, mu, sigma, num_paths, start_date, end_date, granularity, business_days)
 
     def simulate(self) -> np.ndarray:
         """Simulate paths of the Merton Jump Diffusion model.

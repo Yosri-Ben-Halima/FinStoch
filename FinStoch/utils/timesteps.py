@@ -35,7 +35,9 @@ from dateutil.relativedelta import relativedelta
 #     return date_range
 
 
-def generate_date_range_with_granularity(start_date: str, end_date: str, granularity) -> pd.DatetimeIndex:
+def generate_date_range_with_granularity(
+    start_date: str, end_date: str, granularity: str, business_days: bool = False
+) -> pd.DatetimeIndex:
     """
     Generate a date range between start and end dates based on a given granularity.
 
@@ -59,6 +61,9 @@ def generate_date_range_with_granularity(start_date: str, end_date: str, granula
         - 'M': Every month.
         - '3H': Every 3 hours.
         - '2D': Every 2 days.
+    business_days : bool, optional
+        If True, use business day frequency ('B') instead of calendar days.
+        Only applies when granularity is 'D' (daily). Default is False.
 
     Returns
     -------
@@ -75,8 +80,12 @@ def generate_date_range_with_granularity(start_date: str, end_date: str, granula
 
     Generate a date range every 2 days:
     >>> generate_date_range_with_granularity('2023-01-01', '2023-01-10', '2D')
+
+    Generate a business day date range:
+    >>> generate_date_range_with_granularity('2023-01-01', '2023-01-10', 'D', business_days=True)
     """
-    return pd.date_range(start=pd.to_datetime(start_date), end=pd.to_datetime(end_date), freq=granularity)
+    freq = "B" if business_days and granularity == "D" else granularity
+    return pd.date_range(start=pd.to_datetime(start_date), end=pd.to_datetime(end_date), freq=freq)
 
 
 def date_range_duration(range: pd.DatetimeIndex) -> float:

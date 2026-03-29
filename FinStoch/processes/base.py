@@ -35,6 +35,9 @@ class StochasticProcess(ABC):
         The end date for the simulation (e.g., '2023-12-31').
     granularity : str
         The time granularity for each step (e.g., 'D', 'H', '10T').
+    business_days : bool, optional
+        If True, use business days instead of calendar days when
+        granularity is 'D'. Default is False.
     """
 
     def __init__(
@@ -46,6 +49,7 @@ class StochasticProcess(ABC):
         start_date: str,
         end_date: str,
         granularity: str,
+        business_days: bool = False,
     ) -> None:
         self._S0 = S0
         self._mu = mu
@@ -54,11 +58,14 @@ class StochasticProcess(ABC):
         self._start_date = start_date
         self._end_date = end_date
         self._granularity = granularity
+        self._business_days = business_days
         self._recalculate_time_grid()
 
     def _recalculate_time_grid(self) -> None:
         """Recompute time grid attributes from date range and granularity."""
-        self._t = generate_date_range_with_granularity(self._start_date, self._end_date, self._granularity)
+        self._t = generate_date_range_with_granularity(
+            self._start_date, self._end_date, self._granularity, self._business_days
+        )
         self._T = date_range_duration(self._t)
         self._num_steps = len(self._t)
         self._dt = self._T / self._num_steps
@@ -183,4 +190,13 @@ class StochasticProcess(ABC):
     @granularity.setter
     def granularity(self, value: str) -> None:
         self._granularity = value
+        self._recalculate_time_grid()
+
+    @property
+    def business_days(self) -> bool:
+        return self._business_days
+
+    @business_days.setter
+    def business_days(self, value: bool) -> None:
+        self._business_days = value
         self._recalculate_time_grid()
