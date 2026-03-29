@@ -337,6 +337,65 @@ heston.plot(paths=simulated_paths,
 ![Plot](image/heston_val.png)
 ![Plot](image/heston_vol.png)
 
+## Seed Control
+
+All processes accept an optional `seed` parameter for reproducible simulations:
+
+```python
+from FinStoch.processes import GeometricBrownianMotion
+
+gbm = GeometricBrownianMotion(100, 0.05, 0.2, 10, '2023-09-01', '2024-09-01', 'D')
+
+# Reproducible simulation
+paths_a = gbm.simulate(seed=42)
+paths_b = gbm.simulate(seed=42)
+# paths_a and paths_b are identical
+```
+
+## Data Conversion
+
+Convert simulation output to a pandas DataFrame with `to_dataframe()`:
+
+```python
+paths = gbm.simulate(seed=42)
+df = gbm.to_dataframe(paths)
+# DataFrame with DatetimeIndex columns and path indices as rows
+
+# For Heston (tuple output), select price or variance
+heston_paths = heston.simulate(seed=42)
+df_prices = heston.to_dataframe(heston_paths, variance=False)
+df_variance = heston.to_dataframe(heston_paths, variance=True)
+```
+
+## Analytics
+
+All processes inherit analytics methods from the base class, operating on simulation output:
+
+```python
+paths = gbm.simulate(seed=42)
+
+# Summary statistics (mean, std, skew, kurtosis, min, max) at each time step
+stats = gbm.summary_statistics(paths)
+
+# Mean path across all simulations
+mean_path = gbm.expected_path(paths)
+
+# 95% confidence bands
+lower, upper = gbm.confidence_bands(paths, level=0.95)
+
+# Value at Risk at terminal time step (5th percentile)
+var_95 = gbm.var(paths, alpha=0.05)
+
+# Conditional VaR / Expected Shortfall
+cvar_95 = gbm.cvar(paths, alpha=0.05)
+
+# Maximum drawdown per path (peak-to-trough decline as fraction)
+drawdowns = gbm.max_drawdown(paths)
+
+# Histogram of terminal values with fitted normal overlay
+gbm.terminal_distribution(paths, bins=50)
+```
+
 ## License
 This project is licensed under the MIT license found in the [LICENSE](LICENSE) file.
 

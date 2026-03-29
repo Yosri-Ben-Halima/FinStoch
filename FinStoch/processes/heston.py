@@ -64,8 +64,13 @@ class HestonModel(StochasticProcess):
         self._rho = rho
         super().__init__(S0, mu, sigma, num_paths, start_date, end_date, granularity, business_days)
 
-    def simulate(self) -> tuple[np.ndarray, np.ndarray]:
+    def simulate(self, seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
         """Simulate paths of the Heston model.
+
+        Parameters
+        ----------
+        seed : int, optional
+            Random seed for reproducibility.
 
         Returns
         -------
@@ -73,6 +78,8 @@ class HestonModel(StochasticProcess):
             A tuple (S, v) of 2D arrays of shape (num_paths, num_steps)
             for asset prices and variance paths respectively.
         """
+        if seed is not None:
+            np.random.seed(seed)
         S = np.zeros((self._num_paths, self._num_steps))
         S[:, 0] = self._S0
 

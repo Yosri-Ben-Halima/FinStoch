@@ -49,14 +49,21 @@ class OrnsteinUhlenbeck(StochasticProcess):
         self._theta = theta
         super().__init__(S0, mu, sigma, num_paths, start_date, end_date, granularity, business_days)
 
-    def simulate(self) -> np.ndarray:
+    def simulate(self, seed: int | None = None) -> np.ndarray:
         """Simulate paths of the Ornstein-Uhlenbeck model.
+
+        Parameters
+        ----------
+        seed : int, optional
+            Random seed for reproducibility.
 
         Returns
         -------
         np.ndarray
             A 2D array of shape (num_paths, num_steps).
         """
+        if seed is not None:
+            np.random.seed(seed)
         S = np.zeros((self._num_paths, self._num_steps))
         S[:, 0] = self._S0
 

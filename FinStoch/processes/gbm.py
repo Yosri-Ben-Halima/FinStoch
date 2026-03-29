@@ -30,14 +30,21 @@ class GeometricBrownianMotion(StochasticProcess):
         The time granularity for each step (e.g., '10T' for 10 minutes, 'H' for hours).
     """
 
-    def simulate(self) -> np.ndarray:
+    def simulate(self, seed: int | None = None) -> np.ndarray:
         """Simulate paths of the GBM model.
+
+        Parameters
+        ----------
+        seed : int, optional
+            Random seed for reproducibility.
 
         Returns
         -------
         np.ndarray
             A 2D array of shape (num_paths, num_steps).
         """
+        if seed is not None:
+            np.random.seed(seed)
         S = np.zeros((self._num_paths, self._num_steps))
         S[:, 0] = self._S0
 
