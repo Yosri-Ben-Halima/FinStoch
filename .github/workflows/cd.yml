@@ -15,14 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for setuptools-scm to read git tags
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install build setuptools setuptools-scm
-      - run: python -m build --no-isolation
+      - run: pip install build
+      - name: Extract version from tag
+        run: echo "PKG_VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+      - run: python -m build
         env:
-          SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.ref_name }}
+          SETUPTOOLS_SCM_PRETEND_VERSION: ${{ env.PKG_VERSION }}
+      - name: Verify built version
+        run: ls dist/
       - uses: actions/upload-artifact@v4
         with:
           name: dist
