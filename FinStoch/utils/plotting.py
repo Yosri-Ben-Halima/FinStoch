@@ -6,12 +6,10 @@ from typing import Optional, Tuple, Callable, Union
 
 def plot_simulated_paths(
     t,
-    simulate_func: Optional[
-        Callable[[], Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]]
-    ] = None,
+    simulate_func: Optional[Callable[[], Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]]] = None,
     paths: Optional[Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]] = None,
     title: str = "Simulated Paths",
-    ylabel: Optional[str] = None,
+    ylabel: str = "Value",
     fig_size: Optional[Tuple] = None,
     **kwargs,
 ):
@@ -37,18 +35,12 @@ def plot_simulated_paths(
     -------
     None
     """
-    assert (simulate_func is None) != (
-        paths is None
-    ), "Exactly one of 'simulate_func' or 'paths' must be provided."
+    assert (simulate_func is None) != (paths is None), "Exactly one of 'simulate_func' or 'paths' must be provided."
 
     if (paths is None) and (simulate_func is not None):
         paths = simulate_func()
 
-    if (
-        (paths is not None)
-        and isinstance(paths, tuple)
-        and all(isinstance(arr, np.ndarray) for arr in paths)
-    ):
+    if (paths is not None) and isinstance(paths, tuple) and all(isinstance(arr, np.ndarray) for arr in paths):
         S, v = paths
         if kwargs.get("variance", False) is True:
             paths = v

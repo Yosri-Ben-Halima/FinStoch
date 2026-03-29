@@ -1,13 +1,35 @@
-.pytest_cache/
-.vscode/
+# Python
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
+
+# Build & distribution
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
 venv/
+.venv/
+
+# IDE
+.vscode/
+
+# Testing & linting caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Generated version file
+FinStoch/_version.py
+
+# Claude Code (local only)
+.claude/
+
+# Project-specific
 dependencies.txt
 dependencies.json
 *.ipynb
-*.pyc
-**/__pycache__/
 notes.txt
-FinStoch.egg-info/
+CLAUDE.md

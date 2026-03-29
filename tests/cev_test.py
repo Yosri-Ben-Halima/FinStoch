@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
-from FinStoch.processes import ConstantElasricityOfVariance
+from FinStoch.processes import ConstantElasticityOfVariance
 
 
-class TestConstantElasricityOfVariance(unittest.TestCase):
+class TestConstantElasticityOfVariance(unittest.TestCase):
     def setUp(self):
         self.S0 = 100.0
         self.mu = 0.05
@@ -13,7 +13,7 @@ class TestConstantElasricityOfVariance(unittest.TestCase):
         self.start_date = "2023-01-01"
         self.end_date = "2023-01-10"
         self.granularity = "D"
-        self.cev = ConstantElasricityOfVariance(
+        self.cev = ConstantElasticityOfVariance(
             self.S0,
             self.mu,
             self.sigma,

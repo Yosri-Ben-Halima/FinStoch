@@ -1,17 +1,35 @@
-"""`FinStoch` is a library for stochastic processes in financial modeling and financial metrics."""
+"""FinStoch — A Python library for simulating stochastic processes in finance."""
 
-__version__ = "0.1.0"
+try:
+    from importlib.metadata import version, PackageNotFoundError
+
+    __version__ = version("FinStoch")
+except PackageNotFoundError:
+    try:
+        from FinStoch._version import version as __version__  # type: ignore[no-redef]
+    except ImportError:
+        __version__ = "0.0.0-unknown"
 
 __author__ = "Yosri Ben Halima"
-
 __email__ = "yosri.benhalima@ept.ucar.tn"
-
-__description__ = (
-    "A library for stochastic processes in financial modeling and financial metrics."
-)
-
-__url__ = "https://github.com/Yosri-Ben-Halima/FinStoch"
-
 __license__ = "MIT"
 
-__copyright__ = "Copyright (c) 2024 Yosri Ben Halima"
+from FinStoch.processes import (
+    StochasticProcess,
+    GeometricBrownianMotion,
+    MertonJumpDiffusion,
+    OrnsteinUhlenbeck,
+    CoxIngersollRoss,
+    HestonModel,
+    ConstantElasticityOfVariance,
+)
+
+__all__ = [
+    "StochasticProcess",
+    "GeometricBrownianMotion",
+    "MertonJumpDiffusion",
+    "OrnsteinUhlenbeck",
+    "CoxIngersollRoss",
+    "HestonModel",
+    "ConstantElasticityOfVariance",
+]

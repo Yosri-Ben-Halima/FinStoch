@@ -35,9 +35,7 @@ from dateutil.relativedelta import relativedelta
 #     return date_range
 
 
-def generate_date_range_with_granularity(
-    start_date: str, end_date: str, granularity
-) -> pd.DatetimeIndex:
+def generate_date_range_with_granularity(start_date: str, end_date: str, granularity) -> pd.DatetimeIndex:
     """
     Generate a date range between start and end dates based on a given granularity.
 
@@ -78,9 +76,7 @@ def generate_date_range_with_granularity(
     Generate a date range every 2 days:
     >>> generate_date_range_with_granularity('2023-01-01', '2023-01-10', '2D')
     """
-    return pd.date_range(
-        start=pd.to_datetime(start_date), end=pd.to_datetime(end_date), freq=granularity
-    )
+    return pd.date_range(start=pd.to_datetime(start_date), end=pd.to_datetime(end_date), freq=granularity)
 
 
 def date_range_duration(range: pd.DatetimeIndex) -> float:

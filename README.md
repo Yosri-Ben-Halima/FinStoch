@@ -1,9 +1,25 @@
 # FinStoch
 
+A Python library for simulating stochastic processes in finance.
+
 ## Installation
 
 ```bash
 pip install FinStoch
+```
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+
+# Run tests
+python -m unittest discover -s tests -p "*_test.py"
+
+# Format / lint / type check
+ruff format
+flake8 --max-line-length 127
+mypy . --exclude venv --ignore-missing-imports
 ```
 
 ## Processes
@@ -219,7 +235,7 @@ $$
 
 ```python
 import numpy as np 
-from FinStoch.processes import ConstantElasricityOfVariance
+from FinStoch.processes import ConstantElasticityOfVariance
 
 S0 = 100                    # Initial value
 mu = 0.05                   # Annualized Drift coefficient (expected return rate)
@@ -231,7 +247,7 @@ end_date = '2024-09-01'     # End date for the simulation
 granularity = 'D'           # Granularity in daily intervals
     
 # Create the CEV model
-cev = ConstantElasricityOfVariance(S0, mu, sigma, gamma, num_paths, start_date, end_date, granularity)
+cev = ConstantElasticityOfVariance(S0, mu, sigma, gamma, num_paths, start_date, end_date, granularity)
 
 # Simulate the CEV process
 simulated_paths = cev.simulate()
@@ -324,7 +340,7 @@ heston.plot(paths=simulated_paths,
 ## License
 This project is licensed under the MIT license found in the [LICENSE](LICENSE) file.
 
-## Connect with Me
+<!-- ## Connect with Me
 
 Thank you for visiting my GitHub profile! Feel free to reach out if you have any questions or opportunities to collaborate. Let's connect and explore new possibilities together:
 
@@ -335,4 +351,4 @@ Thank you for visiting my GitHub profile! Feel free to reach out if you have any
 [![Email](https://img.shields.io/badge/Email-yosri.benhalima@ept.ucar.tn-white?logo=gmail)](mailto:yosri.benhalima@ept.ucar.tn)
 [![Personal Web Page](https://img.shields.io/badge/Personal%20Web%20Page-Visit%20Now-green?logo=googlechrome)](https://personal-web-page-yosribenhlima.streamlit.app/)
 [![Google Drive](https://img.shields.io/badge/My%20Resume-Click%20Here-red?logo=googledrive&logoColor=white)](https://drive.google.com/file/d/18xB1tlZUBWz5URSli_9kewEFZwZPz235/view?usp=sharing)
-[![PyPI](https://img.shields.io/badge/PyPI-yosri--ben--halima-pink?logo=pypi)](https://pypi.org/user/yosri-ben-halima/)
+[![PyPI](https://img.shields.io/badge/PyPI-yosri--ben--halima-pink?logo=pypi)](https://pypi.org/user/yosri-ben-halima/) -->

@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "FinStoch"
+dynamic = ["version"]
+description = "A Python library for simulating stochastic processes in finance."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    { name = "Yosri Ben Halima", email = "yosri.benhalima@ept.ucar.tn" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Typing :: Typed",
+]
+dependencies = [
+    "matplotlib>=3.7",
+    "scipy>=1.9",
+    "numpy>=1.23",
+    "pandas>=2.0",
+    "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "flake8",
+    "mypy",
+    "types-python-dateutil",
+    "build",
+    "twine",
+]
+
+[project.urls]
+Homepage = "https://github.com/Yosri-Ben-Halima/FinStoch"
+Repository = "https://github.com/Yosri-Ben-Halima/FinStoch"
+Issues = "https://github.com/Yosri-Ben-Halima/FinStoch/issues"
+
+[tool.setuptools.packages.find]
+include = ["FinStoch*"]
+
+[tool.setuptools-scm]
+version_file = "FinStoch/_version.py"
+
+[tool.ruff]
+line-length = 127
+
+[tool.mypy]
+exclude = ["venv", "build", "dist"]
+ignore_missing_imports = true
