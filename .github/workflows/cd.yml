@@ -19,10 +19,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install build
-      - name: Set version from tag
-        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-      - run: python -m build
+      - run: pip install build setuptools setuptools-scm
+      - run: python -m build --no-isolation
+        env:
+          SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v4
         with:
           name: dist
