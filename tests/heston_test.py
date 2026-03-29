@@ -117,7 +117,7 @@ class TestHestonModel(unittest.TestCase):
 
     def test_granularity_change(self):
         # Test updating granularity recalculates time steps and related properties
-        new_granularity = "H"
+        new_granularity = "h"
         self.heston.granularity = new_granularity
         self.assertEqual(self.heston.granularity, new_granularity)
         self.assertEqual(self.heston.num_steps, len(self.heston.t))

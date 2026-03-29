@@ -108,7 +108,7 @@ class TestBusinessDays(unittest.TestCase):
             self.num_paths,
             "2023-01-02",
             "2023-01-02 08:00:00",
-            "H",
+            "h",
             business_days=True,
         )
         gbm_hourly_no_bd = GeometricBrownianMotion(
@@ -118,7 +118,7 @@ class TestBusinessDays(unittest.TestCase):
             self.num_paths,
             "2023-01-02",
             "2023-01-02 08:00:00",
-            "H",
+            "h",
             business_days=False,
         )
         # business_days should have no effect on hourly granularity

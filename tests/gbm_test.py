@@ -76,7 +76,7 @@ class TestGeometricBrownianMotion(unittest.TestCase):
 
     def test_granularity_change(self):
         # Test updating granularity recalculates time steps and related properties
-        new_granularity = "H"
+        new_granularity = "h"
         self.gbm.granularity = new_granularity
         self.assertEqual(self.gbm.granularity, new_granularity)
         self.assertEqual(self.gbm.num_steps, len(self.gbm.t))

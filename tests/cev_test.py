@@ -84,7 +84,7 @@ class TestConstantElasticityOfVariance(unittest.TestCase):
 
     def test_granularity_change(self):
         # Test updating granularity recalculates time steps and related properties
-        new_granularity = "H"
+        new_granularity = "h"
         self.cev.granularity = new_granularity
         self.assertEqual(self.cev.granularity, new_granularity)
         self.assertEqual(self.cev.num_steps, len(self.cev.t))

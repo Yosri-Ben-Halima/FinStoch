@@ -82,7 +82,7 @@ class TestMertonModel(unittest.TestCase):
 
     def test_granularity_change(self):
         # Test updating granularity recalculates time steps and related properties
-        new_granularity = "H"
+        new_granularity = "h"
         self.merton.granularity = new_granularity
         self.assertEqual(self.merton.granularity, new_granularity)
         self.assertEqual(self.merton.num_steps, len(self.merton.t))

@@ -84,7 +84,7 @@ class TestOrnsteinUhlenbeck(unittest.TestCase):
 
     def test_granularity_change(self):
         # Test updating granularity recalculates time steps and related properties
-        new_granularity = "H"
+        new_granularity = "h"
         self.ou.granularity = new_granularity
         self.assertEqual(self.ou.granularity, new_granularity)
         self.assertEqual(self.ou.num_steps, len(self.ou.t))

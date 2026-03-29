@@ -53,13 +53,13 @@ def generate_date_range_with_granularity(
         - u is a Pandas frequency string, which defines the time unit.
 
         Examples of valid granularity values includes, but not limited to:
-        - '10T': Every 10 minutes.
-        - 'T': Every minute.
-        - 'H': Every hour.
+        - '10min': Every 10 minutes.
+        - 'min': Every minute.
+        - 'h': Every hour.
         - 'D': Every day.
         - 'W': Every week.
-        - 'M': Every month.
-        - '3H': Every 3 hours.
+        - 'ME': Every month end.
+        - '3h': Every 3 hours.
         - '2D': Every 2 days.
     business_days : bool, optional
         If True, use business day frequency ('B') instead of calendar days.
@@ -73,10 +73,10 @@ def generate_date_range_with_granularity(
     Examples
     --------
     Generate a date range every 10 minutes:
-    >>> generate_date_range_with_granularity('2023-09-01', '2023-09-01 03:00:00', '10T')
+    >>> generate_date_range_with_granularity('2023-09-01', '2023-09-01 03:00:00', '10min')
 
     Generate a date range every minute:
-    >>> generate_date_range_with_granularity('2023-09-01', '2023-09-01 01:00:00', 'T')
+    >>> generate_date_range_with_granularity('2023-09-01', '2023-09-01 01:00:00', 'min')
 
     Generate a date range every 2 days:
     >>> generate_date_range_with_granularity('2023-01-01', '2023-01-10', '2D')
