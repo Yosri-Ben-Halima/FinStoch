@@ -1,14 +1,11 @@
 """FinStoch — A Python library for simulating stochastic processes in finance."""
 
-try:
-    from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import version, PackageNotFoundError
 
+try:
     __version__ = version("FinStoch")
 except PackageNotFoundError:
-    try:
-        from FinStoch._version import version as __version__  # type: ignore[no-redef]
-    except ImportError:
-        __version__ = "0.0.0-unknown"
+    __version__ = "0.0.0"
 
 __author__ = "Yosri Ben Halima"
 __email__ = "yosri.benhalima@ept.ucar.tn"

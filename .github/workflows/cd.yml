@@ -14,18 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Set version from tag
+        run: sed -i "s/^version = .*/version = \"${GITHUB_REF_NAME#v}\"/" pyproject.toml
       - run: pip install build
-      - name: Build with version from tag
-        run: |
-          export SETUPTOOLS_SCM_PRETEND_VERSION="${GITHUB_REF_NAME#v}"
-          echo "Building version: $SETUPTOOLS_SCM_PRETEND_VERSION"
-          python -m build
-          ls dist/
+      - run: python -m build
+      - run: ls dist/
       - uses: actions/upload-artifact@v4
         with:
           name: dist

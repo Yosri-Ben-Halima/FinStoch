@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=68.0", "setuptools-scm>=8.0"]
+requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "FinStoch"
-dynamic = ["version"]
+version = "0.0.0"
 description = "A Python library for simulating stochastic processes in finance."
 readme = "README.md"
 license = "MIT"
@@ -49,10 +49,6 @@ Issues = "https://github.com/Yosri-Ben-Halima/FinStoch/issues"
 
 [tool.setuptools.packages.find]
 include = ["FinStoch*"]
-
-[tool.setuptools-scm]
-version_file = "FinStoch/_version.py"
-fallback_version = "0.0.0"
 
 [tool.ruff]
 line-length = 127

@@ -21,8 +21,6 @@ venv/
 .mypy_cache/
 .ruff_cache/
 
-# Generated version file
-FinStoch/_version.py
 
 # Claude Code (local only)
 .claude/
