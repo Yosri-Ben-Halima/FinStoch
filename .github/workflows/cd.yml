@@ -1,9 +1,10 @@
 name: CD
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
 
 permissions:
   id-token: write
@@ -11,11 +12,15 @@ permissions:
 
 jobs:
   build:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for setuptools-scm to read git tags
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
