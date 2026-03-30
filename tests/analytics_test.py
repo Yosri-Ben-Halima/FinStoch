@@ -197,6 +197,43 @@ class TestExpectedPath(unittest.TestCase):
         self.assertAlmostEqual(result[0], 100.0)
 
 
+class TestMedianPath(unittest.TestCase):
+    """Tests for the median_path() method."""
+
+    def setUp(self):
+        self.gbm = GeometricBrownianMotion(
+            S0=100.0,
+            mu=0.05,
+            sigma=0.2,
+            num_paths=50,
+            start_date="2023-01-01",
+            end_date="2023-01-10",
+            granularity="D",
+        )
+        self.paths = self.gbm.simulate(seed=42)
+
+    def test_returns_1d_array(self):
+        result = self.gbm.median_path(self.paths)
+        self.assertEqual(result.ndim, 1)
+
+    def test_shape(self):
+        result = self.gbm.median_path(self.paths)
+        self.assertEqual(len(result), self.paths.shape[1])
+
+    def test_equals_median(self):
+        result = self.gbm.median_path(self.paths)
+        np.testing.assert_array_equal(result, np.median(self.paths, axis=0))
+
+    def test_initial_value(self):
+        result = self.gbm.median_path(self.paths)
+        self.assertAlmostEqual(result[0], 100.0)
+
+    def test_median_between_min_and_max(self):
+        result = self.gbm.median_path(self.paths)
+        self.assertTrue(np.all(result >= np.min(self.paths, axis=0)))
+        self.assertTrue(np.all(result <= np.max(self.paths, axis=0)))
+
+
 class TestVaR(unittest.TestCase):
     """Tests for the var() method (Value at Risk)."""
 

@@ -1,413 +1,165 @@
 # FinStoch
 
-A Python library for simulating stochastic processes in finance.
+[![PyPI Latest Release](https://img.shields.io/pypi/v/FinStoch.svg)](https://pypi.org/project/FinStoch/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/FinStoch.svg?label=PyPI%20downloads)](https://pypi.org/project/FinStoch/)
+[![License - MIT](https://img.shields.io/pypi/l/FinStoch.svg)](https://github.com/Yosri-Ben-Halima/FinStoch/blob/main/LICENSE)
+[![Python Version](https://img.shields.io/pypi/pyversions/FinStoch.svg)](https://pypi.org/project/FinStoch/)
+[![CI](https://github.com/Yosri-Ben-Halima/FinStoch/actions/workflows/ci.yml/badge.svg)](https://github.com/Yosri-Ben-Halima/FinStoch/actions/workflows/ci.yml)
+[![Typing](https://img.shields.io/pypi/types/FinStoch)](https://pypi.org/project/FinStoch/)
 
-## Installation
+## What is it?
+
+**FinStoch** is a Python library for simulating stochastic processes commonly used in quantitative finance. It provides clean, consistent interfaces for Monte Carlo path simulation using Euler-Maruyama discretization, with built-in analytics, seed control for reproducibility, and pandas integration.
+
+- **Source code:** <https://github.com/Yosri-Ben-Halima/FinStoch>
+- **Bug reports:** <https://github.com/Yosri-Ben-Halima/FinStoch/issues>
+- **PyPI:** <https://pypi.org/project/FinStoch/>
+
+## Table of Contents
+
+- [Main Features](#main-features)
+- [Supported Processes](#supported-processes)
+- [Where to Get It](#where-to-get-it)
+- [Dependencies](#dependencies)
+- [Quick Start](#quick-start)
+- [Analytics](#analytics)
+- [Development](#development)
+- [License](#license)
+
+## Main Features
+
+- **Six stochastic process models** covering equity prices, interest rates, and stochastic volatility
+- **Reproducible simulations** via seed control on all processes
+- **Flexible time grids** with configurable granularity (daily, hourly, minute-level) and business day support
+- **Built-in analytics** including VaR, CVaR, max drawdown, confidence bands, and summary statistics
+- **pandas integration** with `to_dataframe()` for seamless downstream analysis
+- **Consistent API** across all models: every process exposes `simulate()`, `plot()`, and the full analytics suite
+
+## Supported Processes
+
+| Model | Class | SDE |
+| --- | --- | --- |
+| Geometric Brownian Motion | `GeometricBrownianMotion` | $dS = \mu S\, dt + \sigma S\, dW$ |
+| Merton Jump Diffusion | `MertonJumpDiffusion` | $dS = (\mu - \lambda k) S\, dt + \sigma S\, dW + JS\, dN$ |
+| Ornstein-Uhlenbeck | `OrnsteinUhlenbeck` | $dS = \theta(\mu - S)\, dt + \sigma\, dW$ |
+| Cox-Ingersoll-Ross | `CoxIngersollRoss` | $dS = \theta(\mu - S)\, dt + \sigma\sqrt{S}\, dW$ |
+| Constant Elasticity of Variance | `ConstantElasticityOfVariance` | $dS = \mu S\, dt + \sigma S^\gamma\, dW$ |
+| Heston Stochastic Volatility | `HestonModel` | $dS = \mu S\, dt + \sqrt{v} S\, dW_S$, $dv = \kappa(\theta - v)\, dt + \sigma\sqrt{v}\, dW_v$ |
+
+All processes are discretized using the Euler-Maruyama scheme and return NumPy arrays of shape `(num_paths, num_steps)`. The Heston model returns a tuple `(S, v)` of price and variance paths.
+
+## Where to Get It
 
 ```bash
+# PyPI
 pip install FinStoch
+```
+
+## Dependencies
+
+| Package | Minimum Version | Purpose |
+| --- | --- | --- |
+| [NumPy](https://numpy.org) | 1.23 | Array operations and random number generation |
+| [pandas](https://pandas.pydata.org) | 2.0 | Time grid generation and DataFrame conversion |
+| [matplotlib](https://matplotlib.org) | 3.7 | Path visualization |
+| [SciPy](https://scipy.org) | 1.9 | Statistical functions for analytics |
+| [python-dateutil](https://dateutil.readthedocs.io) | 2.9 | Date range duration calculation |
+
+## Quick Start
+
+### Simulate and plot
+
+```python
+from FinStoch import GeometricBrownianMotion
+
+gbm = GeometricBrownianMotion(
+    S0=100, mu=0.05, sigma=0.2,
+    num_paths=10,
+    start_date='2023-09-01',
+    end_date='2024-09-01',
+    granularity='D',
+)
+
+# Reproducible simulation
+paths = gbm.simulate(seed=42)
+gbm.plot(paths=paths, title='GBM Simulation', ylabel='Price')
+```
+
+### Convert to DataFrame
+
+```python
+df = gbm.to_dataframe(paths)
+# DataFrame with DatetimeIndex columns, one row per path
+```
+
+### Heston model (stochastic volatility)
+
+```python
+from FinStoch import HestonModel
+
+heston = HestonModel(
+    S0=100, v0=0.04, mu=0.05, sigma=0.3,
+    theta=0.04, kappa=2.0, rho=-0.7,
+    num_paths=10,
+    start_date='2023-09-01',
+    end_date='2024-09-01',
+    granularity='D',
+)
+
+prices, variance = heston.simulate(seed=42)
+
+# Convert either component to DataFrame
+df_prices = heston.to_dataframe((prices, variance), variance=False)
+df_var = heston.to_dataframe((prices, variance), variance=True)
+```
+
+## Analytics
+
+All processes inherit a suite of analytics methods from the base class:
+
+```python
+paths = gbm.simulate(seed=42)
+
+# Descriptive statistics at each time step
+stats = gbm.summary_statistics(paths)  # dict: mean, std, skew, kurtosis, min, max
+
+# Central tendency
+mean_path = gbm.expected_path(paths)     # mean across paths
+median = gbm.median_path(paths)          # median across paths
+
+# Uncertainty
+lower, upper = gbm.confidence_bands(paths, level=0.95)
+
+# Risk measures (computed at terminal time step)
+gbm.var(paths, alpha=0.05)    # Value at Risk
+gbm.cvar(paths, alpha=0.05)   # Conditional VaR (Expected Shortfall)
+
+# Drawdown analysis
+drawdowns = gbm.max_drawdown(paths)  # max peak-to-trough per path
+
+# Distribution visualization
+gbm.terminal_distribution(paths, bins=50)  # histogram + fitted normal
 ```
 
 ## Development
 
 ```bash
+# Install in editable mode with dev dependencies
 pip install -e ".[dev]"
 
 # Run tests
 python -m unittest discover -s tests -p "*_test.py"
 
-# Format / lint / type check
+# Format
 ruff format
+
+# Lint
 flake8 --max-line-length 127
-mypy . --exclude venv --ignore-missing-imports
-```
 
-## Processes
-
-### Geometric Brownian Motion
-
-- **SDE**
-
-$$
-dS_t = \mu S_t  dt + \sigma S_t dW_t
-$$
-  
-  - A stochastic process where the logarithm of the variable follows a Brownian motion with drift, representing continuous growth with random fluctuations.
-  
-- **Euler-Maruyama Discretization**
-
-$$
-S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{\sigma^2}{2}\right)\Delta t+\sigma\sqrt{\Delta t}\epsilon_t}
-$$
-  
-  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
-
-```python
-import numpy as np
-from FinStoch.processes import GeometricBrownianMotion
-
-S0 = 100                    # Initial value 
-mu = 0.05                   # Annualized Drift coefficient (expected return rate)
-sigma = 0.2                 # Annualized Volatility (standard deviation of returns)
-num_paths = 10              # Number of paths to simulate
-start_date = '2023-09-01'   # Start date for the simulation
-end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in daily intervals
-    
-# Create the GBM model
-gbm = GeometricBrownianMotion(S0, mu, sigma, num_paths, start_date, end_date, granularity)
-
-# Simulate the GBM process
-simulated_paths = gbm.simulate()
-
-# Plot the simulated paths
-gbm.plot(paths=simulated_paths, 
-         title='Stock Price under Geometric Brownian Motion Assumption', 
-         ylabel='Stock Price',
-         fig_size=(15,5)
-        )
-```
-
-![Plot](image/gbm.png)
-
-### Merton's Jump Diffusion Model
-
-- **SDE**
-  
-$$
-dS_t = \left(\mu - \lambda_j\left( e^{\mu_j+\frac{\sigma_j^2}{2}} - 1\right) \right) S_t  dt + \sigma S_t  dW_t + S_t \left( \prod_{i=1}^{dN_t} Y_i - 1\right) 
-$$
-  
-  - An extension of the geometric Brownian motion that incorporates sudden, discrete jumps $ J_t $ in addition to continuous diffusion, capturing both regular volatility and occasional large shocks.
-
-- **Euler-Maruyama Discretization**
-
-$$
-S_{t+\Delta t} = S_t . e^{\left( \mu - \frac{1}{2} \sigma^2 -\lambda_j\left( e^{\mu_j+\frac{\sigma_j^2}{2}} - 1\right)\right) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t + J_t }
-$$
-
-  Where $\epsilon_t \sim \mathcal{N}(0, 1)$ and $J_t$ is the jump component at time $t$.
-
-```python
-import numpy as np
-from FinStoch.processes import MertonJumpDiffusion
-
-# Parameters
-S0 = 100                    # Initial process value
-mu = 0.05                   # Drift coefficient
-sigma = 0.2                 # Volatility
-lambda_j = 1                # Jump intensity
-mu_j = 0.0                  # Mean of jump size
-sigma_j = 0.15              # Standard deviation of jump size
-num_paths = 10              # Number of simulated paths
-start_date = '2023-09-01'   # Start date for the simulation
-end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in daily intervals
-
-
-# Create Merton model instance and plot
-merton = MertonJumpDiffusion(S0, mu, sigma, lambda_j, mu_j, sigma_j, num_paths, start_date, end_date, granularity)
-
-# Simulate the Merton process
-simulated_paths = merton.simulate()
-
-# Plot the simulated paths
-merton.plot(paths=simulated_paths, 
-         title='Stock Price under the Merton Model Assumption', 
-         ylabel='Stock Price',
-         fig_size=(15,5)
-        )
-```
-
-![Plot](image/merton.png)
-
-### Ornstein-Uhlenbeck model
-
-- **SDE**
-
-$$
-dS_t = \theta (\mu - S_t)  dt + \sigma dW_t
-$$
-  - A mean-reverting stochastic process where the variable fluctuates around a long-term mean with a tendency to revert back, driven by continuous noise.
-
-- **Euler-Maruyama Discretization**
-
-$$
-S_{t+\Delta t} = S_t + \theta (\mu - S_t) \Delta t + \sigma \sqrt{\Delta t} \epsilon_t
-$$
-
-  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
-
-```python
-import numpy as np
-from FinStoch.processes import OrnsteinUhlenbeck 
-
-# Parameters
-S0 = 100                    # Initial value
-mu = 100                    # Annualized drift coefficient
-sigma = 0.2                 # Anualized volatility
-theta = 0.5                 # Annualized mean reversion rate
-num_paths = 10              # Number of paths to simulate
-start_date = '2023-09-01'   # Start date for the simulation
-end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in daily intervals
-
-# Create Ornstein-Uhlenbeck model instance and plot
-ou = OrnsteinUhlenbeck(S0, mu, sigma, theta, num_paths, start_date, end_date, granularity)
-
-# Simulate the OU process
-simulated_paths = ou.simulate()
-
-# Plot the simulated paths
-ou.plot(paths=simulated_paths, 
-         title='Stock Price under the Ornstein Uhlenbeck model Assumption', 
-         ylabel='Stock Price',
-         fig_size=(15,5)
-        )
-```
-
-![Plot](image/ou.png)
-
-### Cox-Ingersoll-Ross Model
-
-- **SDE**
-
-$$
-dS_t = \kappa (\theta - S_t)  dt + \sigma \sqrt{S_t} dW_t
-$$
-  - A mean-reverting process with volatility that depends on the current level of the variable, ensuring the values are always non-negative.
-
-- **Euler-Maruyama Discretization**
-  
-$$
-S_{t+\Delta t} = S_t + \kappa (\theta - S_t) \Delta t + \sigma \sqrt{S_t} \sqrt{\Delta t} \epsilon_t
-$$
-
-  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
-
-```python
-import numpy as np
-from FinStoch.processes import CoxIngersollRoss 
-
-# Parameters 
-S0 = 0.03                   # Initial value
-mu = 0.03                   # Long-term mean
-sigma = 0.1                 # Volatility
-theta = 0.03                # Speed of reversion
-num_paths = 10              # Number of simulation paths
-start_date = '2023-09-01'   # Start date for the simulation
-end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in daily intervals
-
-# Create an instance of the CoxIngersollRoss class
-cir = CoxIngersollRoss(S0, mu, sigma, theta, num_paths, start_date, end_date, granularity)
-
-# Simulate the CIR process
-simulated_paths = cir.simulate()
-
-# Plot the simulated paths
-cir.plot(paths=simulated_paths, 
-         title='Rate under the CIR model Assumption', 
-         ylabel='Rate',
-         fig_size=(15,5)
-        )
-```
-
-![Plot](image/cir.png)
-
-### Constant Elasticity of Variance Model
-
-- **SDE**
-
-$$
-dS_t = \mu S_t  dt + \sigma {S_t}^\gamma dW_t
-$$
-  
-  - A stochastic process that extends the Geometric Brownian Motion process.
-  
-- **Euler-Maruyama Discretization**
-
-$$
-S_{t+\Delta t} = S_t + \mu S_t \Delta t + \sigma {S_t}^\gamma \sqrt{\Delta t} \epsilon_t
-$$
-
-  Where $\epsilon_t \sim \mathcal{N}(0, 1)$.
-
-```python
-import numpy as np 
-from FinStoch.processes import ConstantElasticityOfVariance
-
-S0 = 100                    # Initial value
-mu = 0.05                   # Annualized Drift coefficient (expected return rate)
-sigma = 0.2                 # Annualized Volatility (standard deviation of returns)
-gamma = 1.2                 # Elasticity coefficient
-num_paths = 10              # Number of paths to simulate
-start_date = '2023-09-01'   # Start date for the simulation
-end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in daily intervals
-    
-# Create the CEV model
-cev = ConstantElasticityOfVariance(S0, mu, sigma, gamma, num_paths, start_date, end_date, granularity)
-
-# Simulate the CEV process
-simulated_paths = cev.simulate()
-
-# Plot the simulated paths
-cev.plot(paths=simulated_paths, 
-         title='Stock Price under the Constant Elasricity of Variance Model Assumption', 
-         ylabel='Stock Price',
-         fig_size=(15,5)
-        )
-```
-
-![Plot](image/cev.png)
-
-### Heston Stochastic Volatility Model
-
-- **SDEs**
-
-$$
-dS_t = \mu S_t  dt + \sqrt{v_t} S_t  dW_{S,t}
-$$
-
-$$
-dv_t = \kappa (\theta - v_t)  dt + \sigma_v \sqrt{v_t}  dW_{v,t}
-$$
-
-$$
-dW_{S,t}\times dW_{v,t}=\rho dt
-$$
-
-  - A stochastic volatility model where the volatility of a variable follows its own mean-reverting process, allowing for time-varying volatility that evolves over time.
-
-- **Euler-Maruyama Discretization**
-
-$$
-S_{t+\Delta t} = S_t.e^{\left(\mu-\frac{v_t}{2}\right)\Delta t+\sqrt{v_t}\sqrt{\Delta t}\epsilon_{S,t}}
-$$
-
-$$
-v_{t+\Delta t} = v_t + \kappa (\theta - v_t) \Delta t + \sigma_v \sqrt{v_t} \sqrt{\Delta t} \epsilon_{v,t}
-$$
-
-$$
-Corr(\epsilon_{S,t},\epsilon_{v,t})=\rho
-$$
-
-  Where $\epsilon_S$ and $\epsilon_v$ are correlated standard normal variables.
-
-```python
-import numpy as np
-from FinStoch.processes import HestonModel
-
-# Parameters
-S0 = 100                    # Initial value
-v0 = 0.02                   # Initial volatility
-mu = 0.05                   # Long-term mean of the value
-theta = 0.04                # Long-term mean of the volatility
-sigma = 0.3                 # Volatility of the volatility
-kappa = 1.5                 # Speed of reversion
-rho = -0.7                  # Correlation between shocks
-num_paths = 10              # Number of simulation paths
-start_date = '2023-09-01'   # Start date for the simulation
-end_date = '2024-09-01'     # End date for the simulation
-granularity = 'D'           # Granularity in daily intervals
-
-# Initialize Heston model
-heston = HestonModel(S0, v0, mu, sigma, theta, kappa, rho, num_paths, start_date, end_date, granularity)
-
-# Simulate the Heston model
-simulated_paths = heston.simulate()
-
-# Plot the simulated paths
-heston.plot(paths=simulated_paths,
-            title='Asset Price under the Heston model Assumption', 
-            ylabel='Asset Price',
-            fig_size=(15,5)
-        )
-
-heston.plot(paths=simulated_paths,
-            title='Asset Volatility under the Heston model Assumption', 
-            ylabel='Asset Volatility',
-            variance=True,
-            fig_size=(15,5)
-            )
-```
-
-![Plot](image/heston_val.png)
-![Plot](image/heston_vol.png)
-
-## Seed Control
-
-All processes accept an optional `seed` parameter for reproducible simulations:
-
-```python
-from FinStoch.processes import GeometricBrownianMotion
-
-gbm = GeometricBrownianMotion(100, 0.05, 0.2, 10, '2023-09-01', '2024-09-01', 'D')
-
-# Reproducible simulation
-paths_a = gbm.simulate(seed=42)
-paths_b = gbm.simulate(seed=42)
-# paths_a and paths_b are identical
-```
-
-## Data Conversion
-
-Convert simulation output to a pandas DataFrame with `to_dataframe()`:
-
-```python
-paths = gbm.simulate(seed=42)
-df = gbm.to_dataframe(paths)
-# DataFrame with DatetimeIndex columns and path indices as rows
-
-# For Heston (tuple output), select price or variance
-heston_paths = heston.simulate(seed=42)
-df_prices = heston.to_dataframe(heston_paths, variance=False)
-df_variance = heston.to_dataframe(heston_paths, variance=True)
-```
-
-## Analytics
-
-All processes inherit analytics methods from the base class, operating on simulation output:
-
-```python
-paths = gbm.simulate(seed=42)
-
-# Summary statistics (mean, std, skew, kurtosis, min, max) at each time step
-stats = gbm.summary_statistics(paths)
-
-# Mean path across all simulations
-mean_path = gbm.expected_path(paths)
-
-# 95% confidence bands
-lower, upper = gbm.confidence_bands(paths, level=0.95)
-
-# Value at Risk at terminal time step (5th percentile)
-var_95 = gbm.var(paths, alpha=0.05)
-
-# Conditional VaR / Expected Shortfall
-cvar_95 = gbm.cvar(paths, alpha=0.05)
-
-# Maximum drawdown per path (peak-to-trough decline as fraction)
-drawdowns = gbm.max_drawdown(paths)
-
-# Histogram of terminal values with fitted normal overlay
-gbm.terminal_distribution(paths, bins=50)
+# Type check
+mypy . --exclude venv --exclude build --ignore-missing-imports
 ```
 
 ## License
-This project is licensed under the MIT license found in the [LICENSE](LICENSE) file.
 
-<!-- ## Connect with Me
-
-Thank you for visiting my GitHub profile! Feel free to reach out if you have any questions or opportunities to collaborate. Let's connect and explore new possibilities together:
-
-[![GitHub](https://img.shields.io/badge/GitHub-Yosri--Ben--Halima-black?logo=github)](https://github.com/Yosri-Ben-Halima)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Yosri%20Ben%20Halima-blue?logo=linkedin)](https://www.linkedin.com/in/yosri-ben-halima-3553a9221/)
-[![Facebook](https://img.shields.io/badge/Facebook-@Yosry%20Ben%20Hlima-navy?logo=facebook)](https://www.facebook.com/NottherealYxsry)
-[![Instagram](https://img.shields.io/badge/Instagram-@yosrybh-orange?logo=instagram)](https://www.instagram.com/yosrybh/)
-[![Email](https://img.shields.io/badge/Email-yosri.benhalima@ept.ucar.tn-white?logo=gmail)](mailto:yosri.benhalima@ept.ucar.tn)
-[![Personal Web Page](https://img.shields.io/badge/Personal%20Web%20Page-Visit%20Now-green?logo=googlechrome)](https://personal-web-page-yosribenhlima.streamlit.app/)
-[![Google Drive](https://img.shields.io/badge/My%20Resume-Click%20Here-red?logo=googledrive&logoColor=white)](https://drive.google.com/file/d/18xB1tlZUBWz5URSli_9kewEFZwZPz235/view?usp=sharing)
-[![PyPI](https://img.shields.io/badge/PyPI-yosri--ben--halima-pink?logo=pypi)](https://pypi.org/user/yosri-ben-halima/) -->
+[MIT](LICENSE)

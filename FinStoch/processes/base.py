@@ -245,6 +245,21 @@ class StochasticProcess(ABC):
         """
         return np.mean(paths, axis=0)
 
+    def median_path(self, paths: np.ndarray) -> np.ndarray:
+        """Compute the median path across all simulated paths.
+
+        Parameters
+        ----------
+        paths : np.ndarray
+            A 2D array of shape (num_paths, num_steps).
+
+        Returns
+        -------
+        np.ndarray
+            1D array of length num_steps representing the median path.
+        """
+        return np.median(paths, axis=0)
+
     def var(self, paths: np.ndarray, alpha: float = 0.05) -> float:
         """Compute Value at Risk at the terminal time step.
 
