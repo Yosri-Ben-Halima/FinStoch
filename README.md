@@ -1,4 +1,6 @@
-# FinStoch
+<p align="center">
+  <img src="logos/finstoch-final-horizontal.svg" alt="FinStoch" width="800">
+</p>
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/FinStoch.svg)](https://pypi.org/project/FinStoch/)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/FinStoch.svg?label=PyPI%20downloads)](https://pypi.org/project/FinStoch/)

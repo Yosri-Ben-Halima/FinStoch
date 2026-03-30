@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">FinStoch Logo</title>
+  <desc id="logo-desc">Geometric sigma symbol with refined stochastic paths on a dark grid</desc>
+  <defs>
+    <style>
+      .bg { fill: #0F1B33; }
+      .grid { stroke: #162744; stroke-width: 0.4; fill: none; }
+      .p1 { fill: none; stroke: #4DA8DA; stroke-width: 1.4; stroke-linecap: round; opacity: 0.85; }
+      .p2 { fill: none; stroke: #E84855; stroke-width: 1.4; stroke-linecap: round; opacity: 0.75; }
+      .p3 { fill: none; stroke: #F4A261; stroke-width: 1.4; stroke-linecap: round; opacity: 0.75; }
+      .p4 { fill: none; stroke: #7BE0D6; stroke-width: 1.2; stroke-linecap: round; opacity: 0.6; }
+      .p5 { fill: none; stroke: #A78BFA; stroke-width: 1.2; stroke-linecap: round; opacity: 0.6; }
+      .node { opacity: 0.9; }
+    </style>
+    <linearGradient id="sigma-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2EC4B6"/>
+      <stop offset="100%" style="stop-color:#4DA8DA"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" x="4" y="4" width="112" height="112" rx="18" ry="18"/>
+
+  <!-- Fine grid -->
+  <g class="grid">
+    <line x1="24" y1="4" x2="24" y2="116"/>
+    <line x1="44" y1="4" x2="44" y2="116"/>
+    <line x1="64" y1="4" x2="64" y2="116"/>
+    <line x1="84" y1="4" x2="84" y2="116"/>
+    <line x1="104" y1="4" x2="104" y2="116"/>
+    <line x1="4" y1="24" x2="116" y2="24"/>
+    <line x1="4" y1="44" x2="116" y2="44"/>
+    <line x1="4" y1="64" x2="116" y2="64"/>
+    <line x1="4" y1="84" x2="116" y2="84"/>
+    <line x1="4" y1="104" x2="116" y2="104"/>
+  </g>
+  <!-- Expected path (dotted) -->
+  <path fill="none" stroke="#E8E4E0" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="4 4" opacity="0.85" d="M14,60 L108,66"/>
+
+  <!-- Stochastic paths — smooth curves emanating from left -->
+  <path class="p1" d="M14,60 C24,58 34,50 44,46 C54,42 64,44 74,40 C84,36 94,28 108,24"/>
+  <path class="p4" d="M14,60 C24,59 34,54 44,52 C54,50 64,53 74,50 C84,47 94,42 108,38"/>
+  <path class="p5" d="M14,60 C24,61 34,58 44,56 C54,54 64,57 74,56 C84,55 94,52 108,50"/>
+  <path class="p3" d="M14,60 C24,62 34,66 44,70 C54,74 64,72 74,76 C84,80 94,86 108,90"/>
+  <path class="p2" d="M14,60 C24,63 34,70 44,76 C54,82 64,78 74,84 C84,90 94,96 108,100"/>
+
+  <!-- Data nodes at grid intersections -->
+  <g class="node">
+    <circle fill="#E84855" cx="44" cy="44" r="2.2"/>
+    <circle fill="#4DA8DA" cx="84" cy="44" r="2.8"/>
+    <circle fill="#F4A261" cx="64" cy="84" r="2.5"/>
+    <circle fill="#7BE0D6" cx="84" cy="64" r="2"/>
+    <circle fill="#A78BFA" cx="44" cy="84" r="2"/>
+    <circle fill="#2EC4B6" cx="24" cy="44" r="1.8"/>
+    <circle fill="#E84855" cx="104" cy="84" r="2.2"/>
+    <circle fill="#4DA8DA" cx="64" cy="44" r="1.8"/>
+  </g>
+</svg>
