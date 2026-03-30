@@ -1,5 +1,7 @@
 """Bootstrap Monte Carlo simulation from historical data."""
 
+import warnings
+
 import numpy as np
 
 from FinStoch.processes.base import StochasticProcess
@@ -76,7 +78,8 @@ class BootstrapMonteCarlo(StochasticProcess):
             Random seed for reproducibility.
         method : str, optional
             Only 'euler' is accepted. The bootstrap does not use a
-            discretization scheme, so 'milstein' raises ValueError.
+            discretization scheme, so 'milstein' raises ValueError
+            and 'exact' falls back to 'euler' with a warning.
 
         Returns
         -------
@@ -91,6 +94,12 @@ class BootstrapMonteCarlo(StochasticProcess):
         self._validate_method(method)
         if method == "milstein":
             raise ValueError("Milstein scheme is not applicable to Bootstrap Monte Carlo (no underlying SDE).")
+        if method == "exact":
+            warnings.warn(
+                "Exact transition density is not applicable to Bootstrap Monte Carlo. Falling back to Euler-Maruyama.",
+                stacklevel=2,
+            )
+            method = "euler"
         if seed is not None:
             np.random.seed(seed)
 

@@ -30,9 +30,9 @@ class VarianceGammaProcess(StochasticProcess):
         seed : int, optional
             Random seed for reproducibility.
         method : str, optional
-            Only 'euler' is supported. The Variance Gamma process uses
-            a time-changed Brownian motion, not Euler-Maruyama
-            discretization, so the Milstein scheme is not applicable.
+            'euler' and 'exact' are supported (both produce identical
+            results using the time-changed Brownian motion
+            representation). The Milstein scheme is not applicable.
 
         Returns
         -------

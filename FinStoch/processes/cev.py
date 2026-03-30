@@ -1,5 +1,6 @@
 """Constant Elasticity of Variance process."""
 
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -27,6 +28,7 @@ class ConstantElasticityOfVariance(StochasticProcess):
         method : str, optional
             'euler' for Euler-Maruyama, 'milstein' for Milstein scheme.
             Milstein adds 0.5 * sigma^2 * gamma * S^(2*gamma-1) * (Z^2-1) * dt.
+            'exact' falls back to 'euler' with a warning (no closed form).
 
         Returns
         -------
@@ -34,6 +36,12 @@ class ConstantElasticityOfVariance(StochasticProcess):
             A 2D array of shape (num_paths, num_steps).
         """
         self._validate_method(method)
+        if method == "exact":
+            warnings.warn(
+                "Exact transition density is not available for the CEV process. Falling back to Euler-Maruyama.",
+                stacklevel=2,
+            )
+            method = "euler"
         if seed is not None:
             np.random.seed(seed)
 

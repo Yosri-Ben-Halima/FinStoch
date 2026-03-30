@@ -54,7 +54,7 @@ class StochasticProcess(ABC):
     granularity: str
     business_days: bool = False
 
-    _VALID_METHODS: ClassVar[tuple[str, ...]] = ("euler", "milstein")
+    _VALID_METHODS: ClassVar[tuple[str, ...]] = ("euler", "milstein", "exact")
     _TIME_FIELDS: ClassVar[frozenset[str]] = frozenset({"start_date", "end_date", "granularity", "business_days"})
 
     def __post_init__(self) -> None:
@@ -78,7 +78,7 @@ class StochasticProcess(ABC):
         Raises
         ------
         ValueError
-            If method is not 'euler' or 'milstein'.
+            If method is not 'euler', 'milstein', or 'exact'.
         """
         if method not in self._VALID_METHODS:
             raise ValueError(f"Unknown method '{method}'. Must be one of {self._VALID_METHODS}.")
@@ -93,7 +93,9 @@ class StochasticProcess(ABC):
             Random seed for reproducibility. If None, no seed is set.
         method : str, optional
             Discretization scheme. 'euler' for Euler-Maruyama (default),
-            'milstein' for the Milstein scheme (higher-order accuracy).
+            'milstein' for the Milstein scheme (higher-order accuracy),
+            'exact' for exact transition density sampling (where available).
+            Not all processes support all methods; see per-class docs.
 
         Returns
         -------

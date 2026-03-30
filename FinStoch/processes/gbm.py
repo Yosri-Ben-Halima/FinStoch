@@ -25,6 +25,8 @@ class GeometricBrownianMotion(StochasticProcess):
         method : str, optional
             'euler' uses the exact log-normal solution (default).
             'milstein' uses the Euler-Milstein additive discretization.
+            'exact' is accepted as an alias for 'euler' (both use the
+            exact log-normal transition).
 
         Returns
         -------

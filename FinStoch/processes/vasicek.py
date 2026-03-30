@@ -31,6 +31,7 @@ class VasicekModel(StochasticProcess):
         method : str, optional
             'euler' or 'milstein'. Both produce identical results for
             Vasicek since the diffusion is constant (dg/dr = 0).
+            'exact' uses the closed-form Gaussian transition density.
 
         Returns
         -------
@@ -45,12 +46,20 @@ class VasicekModel(StochasticProcess):
         S[:, 0] = self.S0
         Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
 
-        for t in range(1, self._num_steps):
-            Z = Z_all[:, t - 1]
-            drift = self.a * (self.mu - S[:, t - 1]) * self._dt
-            diffusion = self.sigma * np.sqrt(self._dt) * Z
-            S[:, t] = S[:, t - 1] + drift + diffusion
-            # Milstein correction is zero (constant diffusion, dg/dr = 0)
+        if method == "exact":
+            decay = np.exp(-self.a * self._dt)
+            mean_weight = 1 - decay
+            std_exact = self.sigma * np.sqrt((1 - np.exp(-2 * self.a * self._dt)) / (2 * self.a))
+            for t in range(1, self._num_steps):
+                Z = Z_all[:, t - 1]
+                S[:, t] = S[:, t - 1] * decay + self.mu * mean_weight + std_exact * Z
+        else:
+            for t in range(1, self._num_steps):
+                Z = Z_all[:, t - 1]
+                drift = self.a * (self.mu - S[:, t - 1]) * self._dt
+                diffusion = self.sigma * np.sqrt(self._dt) * Z
+                S[:, t] = S[:, t - 1] + drift + diffusion
+                # Milstein correction is zero (constant diffusion, dg/dr = 0)
 
         return S
 

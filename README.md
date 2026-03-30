@@ -33,6 +33,7 @@
 - **Nine parametric stochastic process models** covering equity prices, interest rates, jump diffusions, and stochastic volatility
 - **Bootstrap Monte Carlo** simulation from historical data (i.i.d. and block bootstrap)
 - **Milstein scheme** for higher-order discretization accuracy via `method="milstein"`
+- **Exact simulation** via closed-form transition densities where available via `method="exact"`
 - **Reproducible simulations** via seed control on all processes
 - **Flexible time grids** with configurable granularity (daily, hourly, minute-level) and business day support
 - **Built-in analytics** including VaR, CVaR, max drawdown, confidence bands, and summary statistics
@@ -53,7 +54,7 @@
 | Bates | `BatesModel` | Heston stochastic volatility combined with Merton-style jumps |
 | Variance Gamma | `VarianceGammaProcess` | Pure-jump process via time-changed Brownian motion with heavier tails |
 
-All parametric processes return NumPy arrays of shape `(num_paths, num_steps)`. Heston and Bates return a tuple `(S, v)` of price and variance paths. Discretization uses Euler-Maruyama by default; pass `method="milstein"` for higher-order accuracy.
+All parametric processes return NumPy arrays of shape `(num_paths, num_steps)`. Heston and Bates return a tuple `(S, v)` of price and variance paths. Discretization uses Euler-Maruyama by default; pass `method="milstein"` for higher-order accuracy or `method="exact"` for exact transition density sampling (available for GBM, Merton, OU, Vasicek, CIR, and Variance Gamma).
 
 ### Non-parametric
 
@@ -139,6 +140,25 @@ paths_milstein = gbm.simulate(seed=42, method='milstein')
 ```
 
 The Milstein scheme is available on all Euler-Maruyama-based processes. For OU and Vasicek (constant diffusion), it is identical to Euler. For Variance Gamma (time-changed Brownian motion), it raises `ValueError`.
+
+### Exact simulation
+
+Use exact transition densities for processes with closed-form solutions:
+
+```python
+from FinStoch import OrnsteinUhlenbeck
+
+ou = OrnsteinUhlenbeck(
+    S0=100, mu=50, sigma=5, theta=0.5,
+    num_paths=10,
+    start_date='2023-01-01',
+    end_date='2024-01-01',
+    granularity='D',
+)
+paths_exact = ou.simulate(seed=42, method='exact')
+```
+
+Available for: GBM, Merton (alias for euler), OU, Vasicek, CIR, Variance Gamma. For processes without a closed-form solution (CEV, Heston, Bates, Bootstrap), `method="exact"` falls back to Euler-Maruyama with a warning.
 
 ### Bootstrap Monte Carlo
 

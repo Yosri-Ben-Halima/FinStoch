@@ -30,6 +30,8 @@ class MertonJumpDiffusion(StochasticProcess):
             'euler' uses the exact log-normal diffusion (default).
             'milstein' uses Euler-Milstein for the diffusion component;
             jumps remain multiplicative and are unaffected.
+            'exact' is accepted as an alias for 'euler' (both use the
+            exact log-normal diffusion with exact Poisson jumps).
 
         Returns
         -------

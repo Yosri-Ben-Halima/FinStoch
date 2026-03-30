@@ -27,6 +27,7 @@ class CoxIngersollRoss(StochasticProcess):
         method : str, optional
             'euler' for Euler-Maruyama, 'milstein' for Milstein scheme.
             Milstein adds a correction of 0.25 * sigma^2 * (Z^2 - 1) * dt.
+            'exact' uses the non-central chi-squared transition density.
 
         Returns
         -------
@@ -39,18 +40,26 @@ class CoxIngersollRoss(StochasticProcess):
 
         S = np.zeros((self.num_paths, self._num_steps))
         S[:, 0] = self.S0
-        Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
 
-        for t in range(1, self._num_steps):
-            Z = Z_all[:, t - 1]
-            drift = self.theta * (self.mu - S[:, t - 1]) * self._dt
-            diffusion = self.sigma * np.sqrt(S[:, t - 1]) * np.sqrt(self._dt) * Z
-            S[:, t] = S[:, t - 1] + drift + diffusion
+        if method == "exact":
+            exp_decay = np.exp(-self.theta * self._dt)
+            c = self.sigma**2 * (1 - exp_decay) / (4 * self.theta)
+            df = 4 * self.theta * self.mu / self.sigma**2
+            for t in range(1, self._num_steps):
+                nc = S[:, t - 1] * exp_decay / c
+                S[:, t] = c * np.random.noncentral_chisquare(df, nc)
+        else:
+            Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+            for t in range(1, self._num_steps):
+                Z = Z_all[:, t - 1]
+                drift = self.theta * (self.mu - S[:, t - 1]) * self._dt
+                diffusion = self.sigma * np.sqrt(S[:, t - 1]) * np.sqrt(self._dt) * Z
+                S[:, t] = S[:, t - 1] + drift + diffusion
 
-            if method == "milstein":
-                S[:, t] += 0.25 * self.sigma**2 * (Z**2 - 1) * self._dt
+                if method == "milstein":
+                    S[:, t] += 0.25 * self.sigma**2 * (Z**2 - 1) * self._dt
 
-            S[:, t] = np.maximum(S[:, t], 0)
+                S[:, t] = np.maximum(S[:, t], 0)
 
         return S
 

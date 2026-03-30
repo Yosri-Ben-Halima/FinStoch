@@ -1,5 +1,6 @@
 """Heston stochastic volatility model."""
 
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -33,7 +34,8 @@ class HestonModel(StochasticProcess):
         method : str, optional
             'euler' for Euler-Maruyama, 'milstein' for Milstein scheme.
             Milstein adds 0.25 * sigma^2 * (Wv^2 - 1) * dt to the
-            variance process.
+            variance process. 'exact' falls back to 'euler' with a
+            warning (no closed-form path simulation).
 
         Returns
         -------
@@ -42,6 +44,12 @@ class HestonModel(StochasticProcess):
             for asset prices and variance paths respectively.
         """
         self._validate_method(method)
+        if method == "exact":
+            warnings.warn(
+                "Exact transition density is not available for the Heston model. Falling back to Euler-Maruyama.",
+                stacklevel=2,
+            )
+            method = "euler"
         if seed is not None:
             np.random.seed(seed)
 
