@@ -1,6 +1,6 @@
-<p align="center">
-  <img src="logos/finstoch-final-horizontal.svg" alt="FinStoch" width="800">
-</p>
+<h1 align="center">
+<img src="https://raw.githubusercontent.com/Yosri-Ben-Halima/FinStoch/main/logos/finstoch-final-horizontal.svg" width="800">
+</h1><br>
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/FinStoch.svg)](https://pypi.org/project/FinStoch/)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/FinStoch.svg?label=PyPI%20downloads)](https://pypi.org/project/FinStoch/)
