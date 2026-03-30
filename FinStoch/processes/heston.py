@@ -85,6 +85,83 @@ class HestonModel(StochasticProcess):
 
         return S, v
 
+    @classmethod
+    def calibrate(cls, data: np.ndarray, dt: float = 1 / 252, **kwargs: object) -> dict[str, float]:
+        """Estimate Heston parameters from a price series.
+
+        Stage 1: Compute rolling realized variance as a proxy for
+        the latent variance process. Stage 2: Calibrate CIR dynamics
+        to the realized variance series. Stage 3: Estimate mu, v0,
+        and rho from return–variance relationships.
+
+        Parameters
+        ----------
+        data : np.ndarray
+            1D array of observed prices (chronological order).
+        dt : float, optional
+            Time step between observations. Default is 1/252 (daily).
+        rv_window : int, optional
+            Rolling window for realized variance. Default is 21.
+
+        Returns
+        -------
+        dict[str, float]
+            Estimated parameters: 'mu', 'sigma', 'v0', 'theta',
+            'kappa', 'rho'.
+
+        References
+        ----------
+        Bollerslev, T. & Zhou, H. (2002). Estimating stochastic
+        volatility diffusion using conditional moments of integrated
+        volatility. Journal of Econometrics, 109(1), 33-65.
+        """
+        import pandas as pd
+
+        from FinStoch.processes.cir import CoxIngersollRoss
+
+        rv_window = int(kwargs.get("rv_window", 21))  # type: ignore[call-overload]
+
+        data = np.asarray(data, dtype=np.float64)
+        if data.ndim != 1 or len(data) < rv_window + 10:
+            raise ValueError(f"data must be a 1D array with at least {rv_window + 10} observations.")
+        if np.any(np.isnan(data)) or np.any(data <= 0):
+            raise ValueError("data must be positive and contain no NaN values.")
+
+        log_returns = np.diff(np.log(data))
+
+        # Stage 1: Rolling realized variance
+        rv = pd.Series(log_returns**2).rolling(rv_window).mean().dropna().values / dt
+        rv = np.maximum(rv, 1e-10)
+
+        # Stage 2: CIR calibration on realized variance
+        cir_params = CoxIngersollRoss.calibrate(rv, dt=dt)
+        kappa_hat = cir_params["theta"]  # CIR theta = Heston kappa
+        theta_hat = cir_params["mu"]  # CIR mu = Heston theta
+        sigma_hat = cir_params["sigma"]
+
+        # Stage 3: v0, mu, rho
+        v0_hat = float(rv[0])
+        mu_hat = float(np.mean(log_returns) / dt + 0.5 * np.mean(rv))
+
+        # Correlation: align return innovations with variance changes
+        dv = np.diff(rv)
+        r_aligned = log_returns[rv_window:]
+        min_len = min(len(dv), len(r_aligned))
+        if min_len > 2:
+            rho_hat = float(np.corrcoef(r_aligned[:min_len], dv[:min_len])[0, 1])
+            rho_hat = float(np.clip(rho_hat, -0.999, 0.999))
+        else:
+            rho_hat = 0.0
+
+        return {
+            "mu": mu_hat,
+            "sigma": sigma_hat,
+            "v0": v0_hat,
+            "theta": theta_hat,
+            "kappa": kappa_hat,
+            "rho": rho_hat,
+        }
+
     def plot(
         self,
         paths: np.ndarray | None = None,

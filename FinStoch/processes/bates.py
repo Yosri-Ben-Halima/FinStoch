@@ -99,6 +99,120 @@ class BatesModel(StochasticProcess):
 
         return S, v
 
+    @classmethod
+    def calibrate(cls, data: np.ndarray, dt: float = 1 / 252, **kwargs: object) -> dict[str, float]:
+        """Estimate Bates parameters via two-stage calibration.
+
+        Stage 1: Estimate stochastic volatility parameters using the
+        Heston calibration procedure. Stage 2: Extract jump parameters
+        from residuals via the EM algorithm.
+
+        Parameters
+        ----------
+        data : np.ndarray
+            1D array of observed prices (chronological order).
+        dt : float, optional
+            Time step between observations. Default is 1/252 (daily).
+        rv_window : int, optional
+            Rolling window for realized variance. Default is 21.
+        max_iter : int, optional
+            Maximum EM iterations for jump estimation. Default is 200.
+        tol : float, optional
+            EM convergence tolerance. Default is 1e-8.
+
+        Returns
+        -------
+        dict[str, float]
+            Estimated parameters: 'mu', 'sigma', 'v0', 'theta',
+            'kappa', 'rho', 'lambda_j', 'mu_j', 'sigma_j'.
+
+        References
+        ----------
+        Bates, D.S. (1996). Jumps and stochastic volatility. Review
+        of Financial Studies, 9(1), 69-107.
+        """
+        import pandas as pd
+        from scipy.stats import norm
+
+        from FinStoch.processes.heston import HestonModel
+
+        rv_window = int(kwargs.get("rv_window", 21))  # type: ignore[call-overload]
+        max_iter = int(kwargs.get("max_iter", 200))  # type: ignore[call-overload]
+        tol = float(kwargs.get("tol", 1e-8))  # type: ignore[call-overload,arg-type]
+
+        data = np.asarray(data, dtype=np.float64)
+        if data.ndim != 1 or len(data) < rv_window + 10:
+            raise ValueError(f"data must be a 1D array with at least {rv_window + 10} observations.")
+        if np.any(np.isnan(data)) or np.any(data <= 0):
+            raise ValueError("data must be positive and contain no NaN values.")
+
+        # Stage 1: Heston calibration for SV component
+        heston_params = HestonModel.calibrate(data, dt=dt, rv_window=rv_window)
+
+        # Compute residuals after removing diffusive component
+        log_returns = np.diff(np.log(data))
+        rv = pd.Series(log_returns**2).rolling(rv_window).mean().dropna().values / dt
+        rv = np.maximum(rv, 1e-10)
+
+        # Align returns with realized variance
+        r_aligned = log_returns[rv_window - 1 :]
+        rv_aligned = rv[: len(r_aligned)]
+        min_len = min(len(r_aligned), len(rv_aligned))
+        r_aligned = r_aligned[:min_len]
+        rv_aligned = rv_aligned[:min_len]
+
+        expected_diffusive = (heston_params["mu"] - 0.5 * rv_aligned) * dt
+        residuals = r_aligned - expected_diffusive
+        n = len(residuals)
+
+        # Stage 2: EM for jump component on residuals
+        lambda_j = 0.1
+        mu_j = 0.0
+        sigma_j = max(float(np.std(residuals)), 1e-6)
+
+        prev_ll = -np.inf
+        for _ in range(max_iter):
+            var_nj = rv_aligned * dt
+            std_nj = np.sqrt(np.maximum(var_nj, 1e-20))
+            std_j = np.sqrt(np.maximum(var_nj + sigma_j**2, 1e-20))
+
+            p_nj = np.maximum(1 - lambda_j * dt, 1e-300) * norm.pdf(residuals, 0.0, std_nj)
+            p_j = np.maximum(lambda_j * dt, 1e-300) * norm.pdf(residuals, mu_j, std_j)
+            total = p_nj + p_j + 1e-300
+            tau = p_j / total
+
+            ll = float(np.sum(np.log(total)))
+            if abs(ll - prev_ll) < tol:
+                break
+            prev_ll = ll
+
+            tau_sum = float(np.sum(tau))
+            lambda_j = max(tau_sum / (n * dt), 1e-10)
+
+            if tau_sum > 1e-10:
+                w_j = tau / tau_sum
+                mu_j = float(np.sum(w_j * residuals))
+                sigma_j = max(float(np.sqrt(np.sum(w_j * (residuals - mu_j) ** 2))), 1e-10)
+            else:
+                mu_j = 0.0
+                sigma_j = 1e-6
+
+        # Adjust mu for jump compensator
+        k = np.exp(mu_j + 0.5 * sigma_j**2) - 1
+        mu_hat = heston_params["mu"] + lambda_j * k
+
+        return {
+            "mu": mu_hat,
+            "sigma": heston_params["sigma"],
+            "v0": heston_params["v0"],
+            "theta": heston_params["theta"],
+            "kappa": heston_params["kappa"],
+            "rho": heston_params["rho"],
+            "lambda_j": lambda_j,
+            "mu_j": mu_j,
+            "sigma_j": sigma_j,
+        }
+
     def plot(
         self,
         paths: np.ndarray | None = None,

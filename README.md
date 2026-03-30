@@ -11,7 +11,7 @@
 
 ## What is it?
 
-**FinStoch** is a Python library for simulating stochastic processes commonly used in quantitative finance. It provides clean, consistent interfaces for Monte Carlo path simulation using Euler-Maruyama discretization, with built-in analytics, seed control for reproducibility, and pandas integration.
+**FinStoch** is a Python library for simulating stochastic processes commonly used in quantitative finance. It provides clean, consistent interfaces for Monte Carlo path simulation with various methods available, with built-in analytics, seed control for reproducibility, and pandas integration.
 
 - **Source code:** <https://github.com/Yosri-Ben-Halima/FinStoch>
 - **Bug reports:** <https://github.com/Yosri-Ben-Halima/FinStoch/issues>
@@ -25,6 +25,7 @@
 - [Dependencies](#dependencies)
 - [Quick Start](#quick-start)
 - [Analytics](#analytics)
+- [Calibration](#calibration)
 - [Development](#development)
 - [License](#license)
 
@@ -38,7 +39,8 @@
 - **Flexible time grids** with configurable granularity (daily, hourly, minute-level) and business day support
 - **Built-in analytics** including VaR, CVaR, max drawdown, confidence bands, and summary statistics
 - **pandas integration** with `to_dataframe()` for seamless downstream analysis
-- **Consistent API** across all models: every process exposes `simulate()`, `plot()`, and the full analytics suite
+- **Parameter calibration** from observed data via `calibrate()` using literature-backed estimation methods (MLE, CLS, EM, GMM)
+- **Consistent API** across all models: every process exposes `simulate()`, `plot()`, `calibrate()`, and the full analytics suite
 
 ## Supported Processes
 
@@ -80,6 +82,40 @@ pip install FinStoch
 | [python-dateutil](https://dateutil.readthedocs.io) | 2.9 | Date range duration calculation |
 
 ## Quick Start
+
+### End-to-end workflow
+
+```python
+import numpy as np
+from FinStoch import GeometricBrownianMotion
+
+# 1. Calibrate from historical data
+historical_prices = np.array([...])  # 1D array of daily prices
+params = GeometricBrownianMotion.calibrate(historical_prices, dt=1/252)
+
+# 2. Initialize the model with calibrated parameters
+gbm = GeometricBrownianMotion(
+    S0=historical_prices[-1], **params,
+    num_paths=1000,
+    start_date='2024-01-01',
+    end_date='2025-01-01',
+    granularity='D',
+)
+
+# 3. Simulate future paths
+paths = gbm.simulate(seed=42)
+
+# 4. Analyze
+gbm.var(paths, alpha=0.05)                # Value at Risk
+gbm.cvar(paths, alpha=0.05)               # Expected Shortfall
+lower, upper = gbm.confidence_bands(paths) # 95% confidence bands
+drawdowns = gbm.max_drawdown(paths)        # max peak-to-trough per path
+df = gbm.to_dataframe(paths)               # pandas DataFrame
+
+# 5. Visualize
+gbm.plot(paths=paths, title='GBM Forecast', ylabel='Price')
+gbm.terminal_distribution(paths)
+```
 
 ### Simulate and plot
 
@@ -211,6 +247,43 @@ drawdowns = gbm.max_drawdown(paths)  # max peak-to-trough per path
 # Distribution visualization
 gbm.terminal_distribution(paths, bins=50)  # histogram + fitted normal
 ```
+
+## Calibration
+
+All parametric processes provide a `calibrate()` class method that estimates model parameters from observed data:
+
+```python
+import numpy as np
+from FinStoch import GeometricBrownianMotion
+
+# Historical daily prices
+prices = np.array([...])  # 1D array
+
+# Estimate parameters (dt=1/252 for daily data)
+params = GeometricBrownianMotion.calibrate(prices, dt=1/252)
+# {'mu': 0.08, 'sigma': 0.2}
+
+# Use calibrated params to build a simulation
+gbm = GeometricBrownianMotion(
+    S0=prices[-1], **params,
+    num_paths=1000,
+    start_date='2024-01-01',
+    end_date='2025-01-01',
+    granularity='D',
+)
+```
+
+| Model | Method | Reference |
+| --- | --- | --- |
+| GBM | Exact MLE on log-returns | Cont & Tankov (2004) |
+| Ornstein-Uhlenbeck | AR(1) MLE | Vasicek (1977) |
+| Vasicek | AR(1) MLE | Vasicek (1977) |
+| Cox-Ingersoll-Ross | Conditional Least Squares | Overbeck & Rydberg (1997) |
+| CEV | CKLS Quasi-MLE | Chan, Karolyi, Longstaff, Sanders (1992) |
+| Merton Jump Diffusion | EM algorithm | Honore (1998) |
+| Heston | Realized variance + CIR | Bollerslev & Zhou (2002) |
+| Bates | Two-stage (Heston + jump EM) | Bates (1996) |
+| Variance Gamma | Method of Moments | Madan, Carr, Chang (1998) |
 
 ## Development
 

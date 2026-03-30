@@ -55,6 +55,40 @@ class GeometricBrownianMotion(StochasticProcess):
 
         return S
 
+    @classmethod
+    def calibrate(cls, data: np.ndarray, dt: float = 1 / 252) -> dict[str, float]:
+        """Estimate GBM parameters from observed prices via exact MLE.
+
+        Log-returns are i.i.d. Normal((mu - sigma^2/2)*dt, sigma^2*dt).
+
+        Parameters
+        ----------
+        data : np.ndarray
+            1D array of observed prices (chronological order).
+        dt : float, optional
+            Time step between observations. Default is 1/252 (daily).
+
+        Returns
+        -------
+        dict[str, float]
+            Estimated parameters: 'mu' (drift) and 'sigma' (volatility).
+
+        References
+        ----------
+        Cont, R. & Tankov, P. (2004). Financial Modelling with Jump
+        Processes, Ch. 7.
+        """
+        data = np.asarray(data, dtype=np.float64)
+        if data.ndim != 1 or len(data) < 3:
+            raise ValueError("data must be a 1D array with at least 3 observations.")
+        if np.any(np.isnan(data)) or np.any(data <= 0):
+            raise ValueError("data must be positive and contain no NaN values.")
+
+        log_returns = np.diff(np.log(data))
+        sigma_hat = float(np.std(log_returns, ddof=1) / np.sqrt(dt))
+        mu_hat = float(np.mean(log_returns) / dt + 0.5 * sigma_hat**2)
+        return {"mu": mu_hat, "sigma": sigma_hat}
+
     def plot(
         self,
         paths: np.ndarray | None = None,

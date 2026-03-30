@@ -1,5 +1,6 @@
 """Cox-Ingersoll-Ross process."""
 
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -62,6 +63,81 @@ class CoxIngersollRoss(StochasticProcess):
                 S[:, t] = np.maximum(S[:, t], 0)
 
         return S
+
+    @classmethod
+    def calibrate(cls, data: np.ndarray, dt: float = 1 / 252) -> dict[str, float]:
+        """Estimate CIR parameters via Conditional Least Squares.
+
+        Stage 1: Estimate (theta, mu) by minimizing the sum of squared
+        deviations from the exact conditional mean. Stage 2: Estimate
+        sigma analytically from the conditional variance formula.
+
+        Parameters
+        ----------
+        data : np.ndarray
+            1D array of observed non-negative values (chronological).
+        dt : float, optional
+            Time step between observations. Default is 1/252 (daily).
+
+        Returns
+        -------
+        dict[str, float]
+            Estimated parameters: 'mu', 'sigma', 'theta'.
+
+        References
+        ----------
+        Overbeck, L. & Rydberg, T. (1997). Estimation for diffusion
+        processes from discrete observation.
+        """
+        from scipy.optimize import minimize
+
+        data = np.asarray(data, dtype=np.float64)
+        if data.ndim != 1 or len(data) < 3:
+            raise ValueError("data must be a 1D array with at least 3 observations.")
+        if np.any(np.isnan(data)) or np.any(data < 0):
+            raise ValueError("data must be non-negative and contain no NaN values.")
+
+        X = data[:-1]
+        Y = data[1:]
+
+        # Initial guess via OU-style OLS
+        X_mean, Y_mean = np.mean(X), np.mean(Y)
+        denom = np.sum((X - X_mean) ** 2)
+        phi_init = np.clip(np.sum((X - X_mean) * (Y - Y_mean)) / denom, 1e-6, 1 - 1e-6)
+        theta_init = max(-np.log(phi_init) / dt, 1e-6)
+        mu_init = max(Y_mean - phi_init * X_mean, 1e-8) / (1 - phi_init)
+
+        def cls_objective(params: np.ndarray) -> float:
+            theta_val, mu_val = params
+            exp_decay = np.exp(-theta_val * dt)
+            cond_mean = X * exp_decay + mu_val * (1 - exp_decay)
+            return float(np.sum((Y - cond_mean) ** 2))
+
+        result = minimize(
+            cls_objective,
+            x0=[theta_init, mu_init],
+            method="L-BFGS-B",
+            bounds=[(1e-6, 100.0), (1e-8, None)],
+        )
+        theta_hat, mu_hat = float(result.x[0]), float(result.x[1])
+
+        # Analytical sigma from conditional variance
+        exp_decay = np.exp(-theta_hat * dt)
+        cond_mean = X * exp_decay + mu_hat * (1 - exp_decay)
+        sq_resid = (Y - cond_mean) ** 2
+        A = X * (1 / theta_hat) * (exp_decay - exp_decay**2)
+        B = mu_hat * (1 / (2 * theta_hat)) * (1 - exp_decay) ** 2
+        sigma_sq = float(np.mean(sq_resid) / np.mean(A + B))
+        sigma_hat = float(np.sqrt(max(sigma_sq, 1e-12)))
+
+        if 2 * theta_hat * mu_hat < sigma_hat**2:
+            warnings.warn(
+                f"Feller condition violated: 2*theta*mu={2 * theta_hat * mu_hat:.6f} < sigma^2={sigma_hat**2:.6f}. "
+                "The process may hit zero.",
+                stacklevel=2,
+            )
+
+        return {"mu": mu_hat, "sigma": sigma_hat, "theta": theta_hat}
 
     def plot(
         self,
