@@ -41,17 +41,17 @@
 
 ## Supported Processes
 
-| Model | Class | SDE |
+| Model | Class | Description |
 | --- | --- | --- |
-| Geometric Brownian Motion | `GeometricBrownianMotion` | $dS = \mu S\, dt + \sigma S\, dW$ |
-| Merton Jump Diffusion | `MertonJumpDiffusion` | $dS = (\mu - \lambda k) S\, dt + \sigma S\, dW + JS\, dN$ |
-| Ornstein-Uhlenbeck | `OrnsteinUhlenbeck` | $dS = \theta(\mu - S)\, dt + \sigma\, dW$ |
-| Cox-Ingersoll-Ross | `CoxIngersollRoss` | $dS = \theta(\mu - S)\, dt + \sigma\sqrt{S}\, dW$ |
-| Constant Elasticity of Variance | `ConstantElasticityOfVariance` | $dS = \mu S\, dt + \sigma S^\gamma\, dW$ |
-| Heston Stochastic Volatility | `HestonModel` | $dS = \mu S\, dt + \sqrt{v} S\, dW_S$, $dv = \kappa(\theta - v)\, dt + \sigma\sqrt{v}\, dW_v$ |
-| Vasicek | `VasicekModel` | $dr = a(b - r)\, dt + \sigma\, dW$ |
-| Bates | `BatesModel` | Heston + Merton jumps: $dS = (\mu - \lambda k) S\, dt + \sqrt{v} S\, dW_S + JS\, dN$ |
-| Variance Gamma | `VarianceGammaProcess` | $S(t) = S_0 \exp((\mu + \omega)t + \theta G(t) + \sigma W(G(t)))$ |
+| Geometric Brownian Motion | `GeometricBrownianMotion` | Log-normal asset price dynamics with constant drift and volatility |
+| Merton Jump Diffusion | `MertonJumpDiffusion` | GBM extended with Poisson-driven jumps for sudden price shocks |
+| Ornstein-Uhlenbeck | `OrnsteinUhlenbeck` | Mean-reverting process with constant volatility |
+| Cox-Ingersoll-Ross | `CoxIngersollRoss` | Mean-reverting, non-negative process with square-root volatility |
+| Constant Elasticity of Variance | `ConstantElasticityOfVariance` | GBM generalization where volatility scales as a power of price |
+| Heston Stochastic Volatility | `HestonModel` | Asset price with mean-reverting stochastic variance and correlation |
+| Vasicek | `VasicekModel` | Mean-reverting interest rate model (allows negative rates) |
+| Bates | `BatesModel` | Heston stochastic volatility combined with Merton-style jumps |
+| Variance Gamma | `VarianceGammaProcess` | Pure-jump process via time-changed Brownian motion with heavier tails |
 
 All parametric processes return NumPy arrays of shape `(num_paths, num_steps)`. Heston and Bates return a tuple `(S, v)` of price and variance paths. Discretization uses Euler-Maruyama by default; pass `method="milstein"` for higher-order accuracy.
 
