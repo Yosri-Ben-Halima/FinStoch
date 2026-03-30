@@ -17,13 +17,16 @@
       <stop offset="0%" style="stop-color:#2EC4B6"/>
       <stop offset="100%" style="stop-color:#4DA8DA"/>
     </linearGradient>
+    <clipPath id="bg-clip">
+      <rect x="10" y="6" width="120" height="112" rx="18" ry="18"/>
+    </clipPath>
   </defs>
 
   <!-- Icon background -->
   <rect class="bg" x="10" y="6" width="120" height="112" rx="18" ry="18"/>
 
   <!-- Grid -->
-  <g class="grid">
+  <g class="grid" clip-path="url(#bg-clip)">
     <line x1="30" y1="6" x2="30" y2="118"/>
     <line x1="50" y1="6" x2="50" y2="118"/>
     <line x1="70" y1="6" x2="70" y2="118"/>

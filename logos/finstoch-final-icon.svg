@@ -16,13 +16,16 @@
       <stop offset="0%" style="stop-color:#2EC4B6"/>
       <stop offset="100%" style="stop-color:#4DA8DA"/>
     </linearGradient>
+    <clipPath id="bg-clip">
+      <rect x="4" y="4" width="112" height="112" rx="18" ry="18"/>
+    </clipPath>
   </defs>
 
   <!-- Background -->
   <rect class="bg" x="4" y="4" width="112" height="112" rx="18" ry="18"/>
 
   <!-- Fine grid -->
-  <g class="grid">
+  <g class="grid" clip-path="url(#bg-clip)">
     <line x1="24" y1="4" x2="24" y2="116"/>
     <line x1="44" y1="4" x2="44" y2="116"/>
     <line x1="64" y1="4" x2="64" y2="116"/>
