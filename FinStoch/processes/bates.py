@@ -1,4 +1,4 @@
-"""Heston stochastic volatility model."""
+"""Bates stochastic volatility jump-diffusion model."""
 
 from dataclasses import dataclass
 
@@ -9,11 +9,12 @@ from FinStoch.utils.plotting import plot_simulated_paths
 
 
 @dataclass(kw_only=True)
-class HestonModel(StochasticProcess):
-    """Heston stochastic volatility model simulator.
+class BatesModel(StochasticProcess):
+    """Bates stochastic volatility jump-diffusion model simulator.
 
-    Models an asset price with stochastic variance:
-        dS = mu * S * dt + sqrt(v) * S * dW_s
+    Combines the Heston stochastic volatility model with Merton-style
+    jumps in the asset price:
+        dS = (mu - lambda_j * k) * S * dt + sqrt(v) * S * dW_s + J * S * dN
         dv = kappa * (theta - v) * dt + sigma * sqrt(v) * dW_v
         corr(dW_s, dW_v) = rho
     """
@@ -22,9 +23,12 @@ class HestonModel(StochasticProcess):
     theta: float
     kappa: float
     rho: float
+    lambda_j: float
+    mu_j: float
+    sigma_j: float
 
     def simulate(self, seed: int | None = None, method: str = "euler") -> tuple[np.ndarray, np.ndarray]:
-        """Simulate paths of the Heston model.
+        """Simulate paths of the Bates model.
 
         Parameters
         ----------
@@ -33,7 +37,7 @@ class HestonModel(StochasticProcess):
         method : str, optional
             'euler' for Euler-Maruyama, 'milstein' for Milstein scheme.
             Milstein adds 0.25 * sigma^2 * (Wv^2 - 1) * dt to the
-            variance process.
+            variance process. Jumps are unaffected by the scheme.
 
         Returns
         -------
@@ -51,9 +55,13 @@ class HestonModel(StochasticProcess):
         v = np.zeros((self.num_paths, self._num_steps))
         v[:, 0] = self.v0
 
+        k = np.exp(self.mu_j + 0.5 * self.sigma_j**2) - 1
+
         L = np.array([[1, 0], [self.rho, np.sqrt(1 - self.rho**2)]])
         Xs_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
         Xv_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+        N_all = np.random.poisson(self.lambda_j * self._dt, (self.num_paths, self._num_steps - 1))
+        J_all = np.random.normal(self.mu_j, self.sigma_j, (self.num_paths, self._num_steps - 1))
 
         for t in range(1, self._num_steps):
             X = np.dot(L, np.array([Xs_all[:, t - 1], Xv_all[:, t - 1]]))
@@ -71,8 +79,13 @@ class HestonModel(StochasticProcess):
 
             v[:, t] = np.maximum(v[:, t], 0)
 
+            N = N_all[:, t - 1]
+            J = np.where(N > 0, J_all[:, t - 1], 0.0)
+
             S[:, t] = S[:, t - 1] * np.exp(
-                (self.mu - 0.5 * v[:, t - 1]) * self._dt + np.sqrt(v[:, t - 1]) * np.sqrt(self._dt) * Ws
+                (self.mu - 0.5 * v[:, t - 1] - self.lambda_j * k) * self._dt
+                + np.sqrt(v[:, t - 1]) * np.sqrt(self._dt) * Ws
+                + J
             )
 
         return S, v
@@ -80,12 +93,12 @@ class HestonModel(StochasticProcess):
     def plot(
         self,
         paths: np.ndarray | None = None,
-        title: str = "Heston Model",
+        title: str = "Bates Model",
         ylabel: str = "Value",
         fig_size: tuple | None = None,
         **kwargs: object,
     ) -> None:
-        """Plot simulated Heston paths.
+        """Plot simulated Bates paths.
 
         Pass ``variance=True`` to plot variance paths instead of prices.
         """

@@ -14,14 +14,14 @@ class TestOrnsteinUhlenbeck(unittest.TestCase):
         self.end_date = "2023-01-10"
         self.granularity = "D"
         self.ou = OrnsteinUhlenbeck(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.theta,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            theta=self.theta,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
         )
 
     def test_initialization(self):

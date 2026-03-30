@@ -1,56 +1,55 @@
 """Geometric Brownian Motion process."""
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from FinStoch.processes.base import StochasticProcess
-from FinStoch.utils.random import generate_random_numbers
 
 
+@dataclass(kw_only=True)
 class GeometricBrownianMotion(StochasticProcess):
     """Geometric Brownian Motion (GBM) process simulator.
 
     Models an asset price following the SDE:
         dS = mu * S * dt + sigma * S * dW
-
-    Parameters
-    ----------
-    S0 : float
-        The initial value of the asset.
-    mu : float
-        The annualized drift coefficient.
-    sigma : float
-        The annualized volatility coefficient.
-    num_paths : int
-        The number of paths to simulate.
-    start_date : str
-        The start date for the simulation (e.g., '2023-09-01').
-    end_date : str
-        The end date for the simulation (e.g., '2023-12-31').
-    granularity : str
-        The time granularity for each step (e.g., '10T' for 10 minutes, 'H' for hours).
     """
 
-    def simulate(self, seed: int | None = None) -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
         """Simulate paths of the GBM model.
 
         Parameters
         ----------
         seed : int, optional
             Random seed for reproducibility.
+        method : str, optional
+            'euler' uses the exact log-normal solution (default).
+            'milstein' uses the Euler-Milstein additive discretization.
 
         Returns
         -------
         np.ndarray
             A 2D array of shape (num_paths, num_steps).
         """
+        self._validate_method(method)
         if seed is not None:
             np.random.seed(seed)
-        S = np.zeros((self._num_paths, self._num_steps))
-        S[:, 0] = self._S0
+
+        S = np.zeros((self.num_paths, self._num_steps))
+        S[:, 0] = self.S0
+        Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
 
         for t in range(1, self._num_steps):
-            Z = generate_random_numbers("normal", self._num_paths, mean=0, stddev=1)
-            S[:, t] = S[:, t - 1] * np.exp((self._mu - 0.5 * self._sigma**2) * self._dt + self._sigma * np.sqrt(self._dt) * Z)
+            Z = Z_all[:, t - 1]
+            if method == "milstein":
+                S[:, t] = (
+                    S[:, t - 1]
+                    + self.mu * S[:, t - 1] * self._dt
+                    + self.sigma * S[:, t - 1] * np.sqrt(self._dt) * Z
+                    + 0.5 * self.sigma**2 * S[:, t - 1] * (Z**2 - 1) * self._dt
+                )
+            else:
+                S[:, t] = S[:, t - 1] * np.exp((self.mu - 0.5 * self.sigma**2) * self._dt + self.sigma * np.sqrt(self._dt) * Z)
 
         return S
 

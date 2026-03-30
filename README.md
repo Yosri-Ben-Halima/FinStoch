@@ -30,7 +30,9 @@
 
 ## Main Features
 
-- **Six stochastic process models** covering equity prices, interest rates, and stochastic volatility
+- **Nine parametric stochastic process models** covering equity prices, interest rates, jump diffusions, and stochastic volatility
+- **Bootstrap Monte Carlo** simulation from historical data (i.i.d. and block bootstrap)
+- **Milstein scheme** for higher-order discretization accuracy via `method="milstein"`
 - **Reproducible simulations** via seed control on all processes
 - **Flexible time grids** with configurable granularity (daily, hourly, minute-level) and business day support
 - **Built-in analytics** including VaR, CVaR, max drawdown, confidence bands, and summary statistics
@@ -47,8 +49,17 @@
 | Cox-Ingersoll-Ross | `CoxIngersollRoss` | $dS = \theta(\mu - S)\, dt + \sigma\sqrt{S}\, dW$ |
 | Constant Elasticity of Variance | `ConstantElasticityOfVariance` | $dS = \mu S\, dt + \sigma S^\gamma\, dW$ |
 | Heston Stochastic Volatility | `HestonModel` | $dS = \mu S\, dt + \sqrt{v} S\, dW_S$, $dv = \kappa(\theta - v)\, dt + \sigma\sqrt{v}\, dW_v$ |
+| Vasicek | `VasicekModel` | $dr = a(b - r)\, dt + \sigma\, dW$ |
+| Bates | `BatesModel` | Heston + Merton jumps: $dS = (\mu - \lambda k) S\, dt + \sqrt{v} S\, dW_S + JS\, dN$ |
+| Variance Gamma | `VarianceGammaProcess` | $S(t) = S_0 \exp((\mu + \omega)t + \theta G(t) + \sigma W(G(t)))$ |
 
-All processes are discretized using the Euler-Maruyama scheme and return NumPy arrays of shape `(num_paths, num_steps)`. The Heston model returns a tuple `(S, v)` of price and variance paths.
+All parametric processes return NumPy arrays of shape `(num_paths, num_steps)`. Heston and Bates return a tuple `(S, v)` of price and variance paths. Discretization uses Euler-Maruyama by default; pass `method="milstein"` for higher-order accuracy.
+
+### Non-parametric
+
+| Method | Class | Description |
+| --- | --- | --- |
+| Bootstrap Monte Carlo | `BootstrapMonteCarlo` | Resamples historical log returns (i.i.d. or block bootstrap) |
 
 ## Where to Get It
 
@@ -113,6 +124,44 @@ prices, variance = heston.simulate(seed=42)
 # Convert either component to DataFrame
 df_prices = heston.to_dataframe((prices, variance), variance=False)
 df_var = heston.to_dataframe((prices, variance), variance=True)
+```
+
+### Milstein scheme
+
+Use the higher-order Milstein discretization for improved accuracy:
+
+```python
+# Euler-Maruyama (default)
+paths_euler = gbm.simulate(seed=42, method='euler')
+
+# Milstein scheme
+paths_milstein = gbm.simulate(seed=42, method='milstein')
+```
+
+The Milstein scheme is available on all Euler-Maruyama-based processes. For OU and Vasicek (constant diffusion), it is identical to Euler. For Variance Gamma (time-changed Brownian motion), it raises `ValueError`.
+
+### Bootstrap Monte Carlo
+
+Simulate from historical data without assuming a parametric model:
+
+```python
+from FinStoch.bootstrap import BootstrapMonteCarlo
+import numpy as np
+
+# Historical daily prices (e.g. from yfinance)
+prices = np.array([100, 102, 99, 103, 101, 104, 98, 105, 107, 103])
+
+model = BootstrapMonteCarlo(
+    historical_prices=prices,
+    num_paths=1000,
+    start_date='2024-01-01',
+    end_date='2024-06-01',
+    granularity='D',
+    # S0 defaults to last price; block_size=5 for block bootstrap
+)
+
+paths = model.simulate(seed=42)
+model.var(paths, alpha=0.05)  # all analytics inherited
 ```
 
 ## Analytics

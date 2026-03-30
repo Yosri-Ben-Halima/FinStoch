@@ -1,91 +1,71 @@
 """Merton Jump Diffusion process."""
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from FinStoch.processes.base import StochasticProcess
-from FinStoch.utils.random import generate_random_numbers
 
 
+@dataclass(kw_only=True)
 class MertonJumpDiffusion(StochasticProcess):
     """Merton Jump Diffusion process simulator.
 
     Extends GBM by incorporating Poisson-distributed jumps:
         dS = (mu - lambda_j * k) * S * dt + sigma * S * dW + J * S * dN
-
-    Parameters
-    ----------
-    S0 : float
-        Initial value of the asset.
-    mu : float
-        The annualized drift coefficient.
-    sigma : float
-        The annualized volatility.
-    lambda_j : float
-        The annualized jump intensity.
-    mu_j : float
-        The mean of jump size.
-    sigma_j : float
-        The standard deviation of jump size.
-    num_paths : int
-        The number of paths to simulate.
-    start_date : str
-        The start date for the simulation.
-    end_date : str
-        The end date for the simulation.
-    granularity : str
-        The time granularity for each step.
-    business_days : bool, optional
-        If True, use business days instead of calendar days. Default is False.
     """
 
-    def __init__(
-        self,
-        S0: float,
-        mu: float,
-        sigma: float,
-        lambda_j: float,
-        mu_j: float,
-        sigma_j: float,
-        num_paths: int,
-        start_date: str,
-        end_date: str,
-        granularity: str,
-        business_days: bool = False,
-    ) -> None:
-        self._lambda_j = lambda_j
-        self._mu_j = mu_j
-        self._sigma_j = sigma_j
-        super().__init__(S0, mu, sigma, num_paths, start_date, end_date, granularity, business_days)
+    lambda_j: float
+    mu_j: float
+    sigma_j: float
 
-    def simulate(self, seed: int | None = None) -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
         """Simulate paths of the Merton Jump Diffusion model.
 
         Parameters
         ----------
         seed : int, optional
             Random seed for reproducibility.
+        method : str, optional
+            'euler' uses the exact log-normal diffusion (default).
+            'milstein' uses Euler-Milstein for the diffusion component;
+            jumps remain multiplicative and are unaffected.
 
         Returns
         -------
         np.ndarray
             A 2D array of shape (num_paths, num_steps).
         """
+        self._validate_method(method)
         if seed is not None:
             np.random.seed(seed)
-        S = np.zeros((self._num_paths, self._num_steps))
-        S[:, 0] = self._S0
 
-        k = np.exp(self._mu_j + 0.5 * self._sigma_j**2) - 1
+        S = np.zeros((self.num_paths, self._num_steps))
+        S[:, 0] = self.S0
+
+        k = np.exp(self.mu_j + 0.5 * self.sigma_j**2) - 1
+
+        Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+        N_all = np.random.poisson(self.lambda_j * self._dt, (self.num_paths, self._num_steps - 1))
+        J_all = np.random.normal(self.mu_j, self.sigma_j, (self.num_paths, self._num_steps - 1))
 
         for t in range(1, self._num_steps):
-            Z = generate_random_numbers("normal", self._num_paths, mean=0, stddev=1)
-            N = generate_random_numbers("poisson", self._num_paths, lam=self._lambda_j * self._dt)
-            J = np.zeros(self._num_paths)
+            Z = Z_all[:, t - 1]
+            N = N_all[:, t - 1]
+            J = np.where(N > 0, J_all[:, t - 1], 0.0)
 
-            J[N > 0] = generate_random_numbers("normal", int(np.sum(N > 0)), mean=self._mu_j, stddev=self._sigma_j)
-            S[:, t] = S[:, t - 1] * np.exp(
-                (self._mu - 0.5 * self._sigma**2 - self._lambda_j * k) * self._dt + self._sigma * np.sqrt(self._dt) * Z + J
-            )
+            if method == "milstein":
+                S[:, t] = (
+                    S[:, t - 1]
+                    + (self.mu - self.lambda_j * k) * S[:, t - 1] * self._dt
+                    + self.sigma * S[:, t - 1] * np.sqrt(self._dt) * Z
+                    + 0.5 * self.sigma**2 * S[:, t - 1] * (Z**2 - 1) * self._dt
+                    + S[:, t - 1] * (np.exp(J) - 1)
+                )
+            else:
+                S[:, t] = S[:, t - 1] * np.exp(
+                    (self.mu - 0.5 * self.sigma**2 - self.lambda_j * k) * self._dt + self.sigma * np.sqrt(self._dt) * Z + J
+                )
 
         return S
 
@@ -99,27 +79,3 @@ class MertonJumpDiffusion(StochasticProcess):
     ) -> None:
         """Plot simulated Merton Jump Diffusion paths."""
         super().plot(paths, title=title, ylabel=ylabel, fig_size=fig_size, **kwargs)
-
-    @property
-    def lambda_j(self) -> float:
-        return self._lambda_j
-
-    @lambda_j.setter
-    def lambda_j(self, value: float) -> None:
-        self._lambda_j = value
-
-    @property
-    def mu_j(self) -> float:
-        return self._mu_j
-
-    @mu_j.setter
-    def mu_j(self, value: float) -> None:
-        self._mu_j = value
-
-    @property
-    def sigma_j(self) -> float:
-        return self._sigma_j
-
-    @sigma_j.setter
-    def sigma_j(self, value: float) -> None:
-        self._sigma_j = value

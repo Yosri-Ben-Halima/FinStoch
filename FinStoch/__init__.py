@@ -19,7 +19,11 @@ from FinStoch.processes import (
     CoxIngersollRoss,
     HestonModel,
     ConstantElasticityOfVariance,
+    VasicekModel,
+    BatesModel,
+    VarianceGammaProcess,
 )
+from FinStoch.bootstrap import BootstrapMonteCarlo
 
 __all__ = [
     "StochasticProcess",
@@ -29,4 +33,8 @@ __all__ = [
     "CoxIngersollRoss",
     "HestonModel",
     "ConstantElasticityOfVariance",
+    "VasicekModel",
+    "BatesModel",
+    "VarianceGammaProcess",
+    "BootstrapMonteCarlo",
 ]

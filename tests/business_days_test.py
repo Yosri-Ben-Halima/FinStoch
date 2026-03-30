@@ -23,13 +23,13 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_default_uses_calendar_days(self):
         gbm = GeometricBrownianMotion(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
         )
         self.assertFalse(gbm.business_days)
         # Calendar days: Jan 1 through Jan 15 inclusive = 15 days
@@ -37,13 +37,13 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_business_days_excludes_weekends(self):
         gbm = GeometricBrownianMotion(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
             business_days=True,
         )
         self.assertTrue(gbm.business_days)
@@ -54,13 +54,13 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_business_days_all_weekdays(self):
         gbm = GeometricBrownianMotion(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
             business_days=True,
         )
         for date in gbm.t:
@@ -68,13 +68,13 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_simulation_shape_with_business_days(self):
         gbm = GeometricBrownianMotion(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
             business_days=True,
         )
         paths = gbm.simulate()
@@ -83,13 +83,13 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_setter_toggles_business_days(self):
         gbm = GeometricBrownianMotion(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
         )
         calendar_steps = gbm.num_steps
 
@@ -102,23 +102,23 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_business_days_ignored_for_non_daily_granularity(self):
         gbm_hourly = GeometricBrownianMotion(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.num_paths,
-            "2023-01-02",
-            "2023-01-02 08:00:00",
-            "h",
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            num_paths=self.num_paths,
+            start_date="2023-01-02",
+            end_date="2023-01-02 08:00:00",
+            granularity="h",
             business_days=True,
         )
         gbm_hourly_no_bd = GeometricBrownianMotion(
-            self.S0,
-            self.mu,
-            self.sigma,
-            self.num_paths,
-            "2023-01-02",
-            "2023-01-02 08:00:00",
-            "h",
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            num_paths=self.num_paths,
+            start_date="2023-01-02",
+            end_date="2023-01-02 08:00:00",
+            granularity="h",
             business_days=False,
         )
         # business_days should have no effect on hourly granularity
@@ -126,14 +126,14 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_business_days_works_on_other_processes(self):
         ou = OrnsteinUhlenbeck(
-            self.S0,
-            self.mu,
-            self.sigma,
-            0.5,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            mu=self.mu,
+            sigma=self.sigma,
+            theta=0.5,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
             business_days=True,
         )
         expected = len(pd.bdate_range(self.start_date, self.end_date))
@@ -144,17 +144,17 @@ class TestBusinessDays(unittest.TestCase):
 
     def test_business_days_works_on_heston(self):
         heston = HestonModel(
-            self.S0,
-            0.02,
-            self.mu,
-            0.3,
-            0.04,
-            1.5,
-            -0.7,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            v0=0.02,
+            mu=self.mu,
+            sigma=0.3,
+            theta=0.04,
+            kappa=1.5,
+            rho=-0.7,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
             business_days=True,
         )
         expected = len(pd.bdate_range(self.start_date, self.end_date))

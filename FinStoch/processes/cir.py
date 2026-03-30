@@ -1,79 +1,55 @@
 """Cox-Ingersoll-Ross process."""
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from FinStoch.processes.base import StochasticProcess
-from FinStoch.utils.random import generate_random_numbers
 
 
+@dataclass(kw_only=True)
 class CoxIngersollRoss(StochasticProcess):
     """Cox-Ingersoll-Ross (CIR) mean-reverting process simulator.
 
     Models a non-negative process following the SDE:
         dS = theta * (mu - S) * dt + sigma * sqrt(S) * dW
-
-    Parameters
-    ----------
-    S0 : float
-        Initial value of the process.
-    mu : float
-        Long-term mean to which the process reverts.
-    sigma : float
-        Volatility parameter.
-    theta : float
-        Speed of reversion to the mean.
-    num_paths : int
-        Number of simulation paths to generate.
-    start_date : str
-        Starting date for the simulation.
-    end_date : str
-        Ending date for the simulation.
-    granularity : str
-        Granularity of time steps (e.g., '10T' for 10 minutes, 'H' for hours).
-    business_days : bool, optional
-        If True, use business days instead of calendar days. Default is False.
     """
 
-    def __init__(
-        self,
-        S0: float,
-        mu: float,
-        sigma: float,
-        theta: float,
-        num_paths: int,
-        start_date: str,
-        end_date: str,
-        granularity: str,
-        business_days: bool = False,
-    ) -> None:
-        self._theta = theta
-        super().__init__(S0, mu, sigma, num_paths, start_date, end_date, granularity, business_days)
+    theta: float
 
-    def simulate(self, seed: int | None = None) -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
         """Simulate paths of the CIR model.
 
         Parameters
         ----------
         seed : int, optional
             Random seed for reproducibility.
+        method : str, optional
+            'euler' for Euler-Maruyama, 'milstein' for Milstein scheme.
+            Milstein adds a correction of 0.25 * sigma^2 * (Z^2 - 1) * dt.
 
         Returns
         -------
         np.ndarray
             A 2D array of shape (num_paths, num_steps).
         """
+        self._validate_method(method)
         if seed is not None:
             np.random.seed(seed)
-        S = np.zeros((self._num_paths, self._num_steps))
-        S[:, 0] = self._S0
+
+        S = np.zeros((self.num_paths, self._num_steps))
+        S[:, 0] = self.S0
+        Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
 
         for t in range(1, self._num_steps):
-            Z = generate_random_numbers("normal", self._num_paths, mean=0, stddev=1)
-            drift = self._theta * (self._mu - S[:, t - 1]) * self._dt
-            diffusion = self._sigma * np.sqrt(S[:, t - 1]) * np.sqrt(self._dt) * Z
+            Z = Z_all[:, t - 1]
+            drift = self.theta * (self.mu - S[:, t - 1]) * self._dt
+            diffusion = self.sigma * np.sqrt(S[:, t - 1]) * np.sqrt(self._dt) * Z
             S[:, t] = S[:, t - 1] + drift + diffusion
 
-            # Ensure non-negativity
+            if method == "milstein":
+                S[:, t] += 0.25 * self.sigma**2 * (Z**2 - 1) * self._dt
+
             S[:, t] = np.maximum(S[:, t], 0)
 
         return S
@@ -88,11 +64,3 @@ class CoxIngersollRoss(StochasticProcess):
     ) -> None:
         """Plot simulated CIR paths."""
         super().plot(paths, title=title, ylabel=ylabel, fig_size=fig_size, **kwargs)
-
-    @property
-    def theta(self) -> float:
-        return self._theta
-
-    @theta.setter
-    def theta(self, value: float) -> None:
-        self._theta = value

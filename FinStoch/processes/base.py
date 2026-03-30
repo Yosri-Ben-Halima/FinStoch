@@ -1,7 +1,8 @@
 """Base class for all stochastic process simulators."""
 
 from abc import ABC, abstractmethod
-from typing import Union
+from dataclasses import dataclass
+from typing import ClassVar, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,11 +17,12 @@ from FinStoch.utils.timesteps import (
 )
 
 
+@dataclass(kw_only=True)
 class StochasticProcess(ABC):
     """Abstract base class for stochastic process simulators.
 
-    Provides shared initialization, time grid management, and plotting
-    for all Euler-Maruyama discretized stochastic processes.
+    Provides shared initialization, time grid management, plotting,
+    data conversion, and analytics for all stochastic processes.
 
     Parameters
     ----------
@@ -43,44 +45,55 @@ class StochasticProcess(ABC):
         granularity is 'D'. Default is False.
     """
 
-    def __init__(
-        self,
-        S0: float,
-        mu: float,
-        sigma: float,
-        num_paths: int,
-        start_date: str,
-        end_date: str,
-        granularity: str,
-        business_days: bool = False,
-    ) -> None:
-        self._S0 = S0
-        self._mu = mu
-        self._sigma = sigma
-        self._num_paths = num_paths
-        self._start_date = start_date
-        self._end_date = end_date
-        self._granularity = granularity
-        self._business_days = business_days
+    S0: float
+    mu: float
+    sigma: float
+    num_paths: int
+    start_date: str
+    end_date: str
+    granularity: str
+    business_days: bool = False
+
+    _VALID_METHODS: ClassVar[tuple[str, ...]] = ("euler", "milstein")
+    _TIME_FIELDS: ClassVar[frozenset[str]] = frozenset({"start_date", "end_date", "granularity", "business_days"})
+
+    def __post_init__(self) -> None:
         self._recalculate_time_grid()
+
+    def __setattr__(self, name: str, value: object) -> None:
+        object.__setattr__(self, name, value)
+        if name in self._TIME_FIELDS and hasattr(self, "_dt"):
+            self._recalculate_time_grid()
 
     def _recalculate_time_grid(self) -> None:
         """Recompute time grid attributes from date range and granularity."""
-        self._t = generate_date_range_with_granularity(
-            self._start_date, self._end_date, self._granularity, self._business_days
-        )
+        self._t = generate_date_range_with_granularity(self.start_date, self.end_date, self.granularity, self.business_days)
         self._T = date_range_duration(self._t)
         self._num_steps = len(self._t)
         self._dt = self._T / self._num_steps
 
+    def _validate_method(self, method: str) -> None:
+        """Validate the discretization method parameter.
+
+        Raises
+        ------
+        ValueError
+            If method is not 'euler' or 'milstein'.
+        """
+        if method not in self._VALID_METHODS:
+            raise ValueError(f"Unknown method '{method}'. Must be one of {self._VALID_METHODS}.")
+
     @abstractmethod
-    def simulate(self, seed: int | None = None) -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
+    def simulate(self, seed: int | None = None, method: str = "euler") -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
         """Simulate paths of the stochastic process.
 
         Parameters
         ----------
         seed : int, optional
             Random seed for reproducibility. If None, no seed is set.
+        method : str, optional
+            Discretization scheme. 'euler' for Euler-Maruyama (default),
+            'milstein' for the Milstein scheme (higher-order accuracy).
 
         Returns
         -------
@@ -122,6 +135,24 @@ class StochasticProcess(ABC):
             fig_size=fig_size,
             grid=kwargs.get("grid", True),
         )
+
+    # --- Computed properties (read-only) ---
+
+    @property
+    def T(self) -> float:
+        return self._T
+
+    @property
+    def num_steps(self) -> int:
+        return self._num_steps
+
+    @property
+    def dt(self) -> float:
+        return self._dt
+
+    @property
+    def t(self) -> DatetimeIndex:
+        return self._t
 
     # --- Data conversion ---
 
@@ -323,89 +354,3 @@ class StochasticProcess(ABC):
         cummax = np.maximum.accumulate(paths, axis=1)
         drawdowns = (cummax - paths) / cummax
         return np.max(drawdowns, axis=1)
-
-    # --- Shared properties ---
-
-    @property
-    def S0(self) -> float:
-        return self._S0
-
-    @S0.setter
-    def S0(self, value: float) -> None:
-        self._S0 = value
-
-    @property
-    def mu(self) -> float:
-        return self._mu
-
-    @mu.setter
-    def mu(self, value: float) -> None:
-        self._mu = value
-
-    @property
-    def sigma(self) -> float:
-        return self._sigma
-
-    @sigma.setter
-    def sigma(self, value: float) -> None:
-        self._sigma = value
-
-    @property
-    def T(self) -> float:
-        return self._T
-
-    @property
-    def num_steps(self) -> int:
-        return self._num_steps
-
-    @property
-    def num_paths(self) -> int:
-        return self._num_paths
-
-    @num_paths.setter
-    def num_paths(self, value: int) -> None:
-        self._num_paths = value
-
-    @property
-    def dt(self) -> float:
-        return self._dt
-
-    @property
-    def t(self) -> DatetimeIndex:
-        return self._t
-
-    @property
-    def start_date(self) -> str:
-        return self._start_date
-
-    @start_date.setter
-    def start_date(self, value: str) -> None:
-        self._start_date = value
-        self._recalculate_time_grid()
-
-    @property
-    def end_date(self) -> str:
-        return self._end_date
-
-    @end_date.setter
-    def end_date(self, value: str) -> None:
-        self._end_date = value
-        self._recalculate_time_grid()
-
-    @property
-    def granularity(self) -> str:
-        return self._granularity
-
-    @granularity.setter
-    def granularity(self, value: str) -> None:
-        self._granularity = value
-        self._recalculate_time_grid()
-
-    @property
-    def business_days(self) -> bool:
-        return self._business_days
-
-    @business_days.setter
-    def business_days(self, value: bool) -> None:
-        self._business_days = value
-        self._recalculate_time_grid()

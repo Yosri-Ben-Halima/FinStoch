@@ -1,4 +1,4 @@
-"""Ornstein-Uhlenbeck process."""
+"""Vasicek interest rate model."""
 
 from dataclasses import dataclass
 
@@ -8,25 +8,29 @@ from FinStoch.processes.base import StochasticProcess
 
 
 @dataclass(kw_only=True)
-class OrnsteinUhlenbeck(StochasticProcess):
-    """Ornstein-Uhlenbeck mean-reverting process simulator.
+class VasicekModel(StochasticProcess):
+    """Vasicek mean-reverting interest rate model simulator.
 
-    Models a process following the SDE:
-        dS = theta * (mu - S) * dt + sigma * dW
+    Models a short rate following the SDE:
+        dr = a * (b - r) * dt + sigma * dW
+
+    Mathematically equivalent to the Ornstein-Uhlenbeck process but
+    uses interest rate conventions: ``a`` for mean reversion speed
+    and ``mu`` for the long-term mean level ``b``.
     """
 
-    theta: float
+    a: float
 
     def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
-        """Simulate paths of the Ornstein-Uhlenbeck model.
+        """Simulate paths of the Vasicek model.
 
         Parameters
         ----------
         seed : int, optional
             Random seed for reproducibility.
         method : str, optional
-            'euler' or 'milstein'. Both produce identical results for OU
-            since the diffusion is constant (dg/dS = 0).
+            'euler' or 'milstein'. Both produce identical results for
+            Vasicek since the diffusion is constant (dg/dr = 0).
 
         Returns
         -------
@@ -43,20 +47,20 @@ class OrnsteinUhlenbeck(StochasticProcess):
 
         for t in range(1, self._num_steps):
             Z = Z_all[:, t - 1]
-            drift = self.theta * (self.mu - S[:, t - 1]) * self._dt
+            drift = self.a * (self.mu - S[:, t - 1]) * self._dt
             diffusion = self.sigma * np.sqrt(self._dt) * Z
             S[:, t] = S[:, t - 1] + drift + diffusion
-            # Milstein correction is zero (constant diffusion, dg/dS = 0)
+            # Milstein correction is zero (constant diffusion, dg/dr = 0)
 
         return S
 
     def plot(
         self,
         paths: np.ndarray | None = None,
-        title: str = "Ornstein Uhlenbeck",
-        ylabel: str = "Value",
+        title: str = "Vasicek Model",
+        ylabel: str = "Interest Rate",
         fig_size: tuple | None = None,
         **kwargs: object,
     ) -> None:
-        """Plot simulated Ornstein-Uhlenbeck paths."""
+        """Plot simulated Vasicek paths."""
         super().plot(paths, title=title, ylabel=ylabel, fig_size=fig_size, **kwargs)

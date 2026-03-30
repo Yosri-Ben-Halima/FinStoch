@@ -11,6 +11,9 @@ from FinStoch.processes import (
     CoxIngersollRoss,
     ConstantElasticityOfVariance,
     HestonModel,
+    VasicekModel,
+    BatesModel,
+    VarianceGammaProcess,
 )
 
 
@@ -89,6 +92,52 @@ class TestSeedReproducibility(unittest.TestCase):
         s2, v2 = model.simulate(seed=42)
         np.testing.assert_array_equal(s1, s2)
         np.testing.assert_array_equal(v1, v2)
+
+    def test_vasicek_seed(self):
+        model = VasicekModel(
+            S0=0.05, mu=0.03, sigma=0.01, a=0.5, **{k: v for k, v in self.common.items() if k not in ("S0", "mu", "sigma")}
+        )
+        a = model.simulate(seed=42)
+        b = model.simulate(seed=42)
+        np.testing.assert_array_equal(a, b)
+
+    def test_bates_seed(self):
+        model = BatesModel(
+            S0=100.0,
+            v0=0.04,
+            mu=0.05,
+            sigma=0.3,
+            theta=0.04,
+            kappa=2.0,
+            rho=-0.7,
+            lambda_j=0.1,
+            mu_j=-0.05,
+            sigma_j=0.1,
+            num_paths=10,
+            start_date="2023-01-01",
+            end_date="2023-01-10",
+            granularity="D",
+        )
+        s1, v1 = model.simulate(seed=42)
+        s2, v2 = model.simulate(seed=42)
+        np.testing.assert_array_equal(s1, s2)
+        np.testing.assert_array_equal(v1, v2)
+
+    def test_variance_gamma_seed(self):
+        model = VarianceGammaProcess(
+            S0=100.0,
+            mu=0.05,
+            sigma=0.2,
+            theta=-0.1,
+            nu=0.2,
+            num_paths=10,
+            start_date="2023-01-01",
+            end_date="2023-01-10",
+            granularity="D",
+        )
+        a = model.simulate(seed=42)
+        b = model.simulate(seed=42)
+        np.testing.assert_array_equal(a, b)
 
 
 if __name__ == "__main__":

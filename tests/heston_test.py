@@ -17,17 +17,17 @@ class TestHestonModel(unittest.TestCase):
         self.end_date = "2023-01-10"
         self.granularity = "D"
         self.heston = HestonModel(
-            self.S0,
-            self.v0,
-            self.mu,
-            self.sigma,
-            self.theta,
-            self.kappa,
-            self.rho,
-            self.num_paths,
-            self.start_date,
-            self.end_date,
-            self.granularity,
+            S0=self.S0,
+            v0=self.v0,
+            mu=self.mu,
+            sigma=self.sigma,
+            theta=self.theta,
+            kappa=self.kappa,
+            rho=self.rho,
+            num_paths=self.num_paths,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            granularity=self.granularity,
         )
 
     def test_initialization(self):

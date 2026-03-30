@@ -1,79 +1,56 @@
 """Constant Elasticity of Variance process."""
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from FinStoch.processes.base import StochasticProcess
-from FinStoch.utils.random import generate_random_numbers
 
 
+@dataclass(kw_only=True)
 class ConstantElasticityOfVariance(StochasticProcess):
     """Constant Elasticity of Variance (CEV) process simulator.
 
     Models an asset price following the SDE:
         dS = mu * S * dt + sigma * S^gamma * dW
-
-    Parameters
-    ----------
-    S0 : float
-        The initial value of the asset.
-    mu : float
-        The annualized drift coefficient.
-    sigma : float
-        The annualized volatility coefficient.
-    gamma : float
-        The elasticity parameter.
-    num_paths : int
-        The number of paths to simulate.
-    start_date : str
-        The start date for the simulation.
-    end_date : str
-        The end date for the simulation.
-    granularity : str
-        The time granularity for each step.
-    business_days : bool, optional
-        If True, use business days instead of calendar days. Default is False.
     """
 
-    def __init__(
-        self,
-        S0: float,
-        mu: float,
-        sigma: float,
-        gamma: float,
-        num_paths: int,
-        start_date: str,
-        end_date: str,
-        granularity: str,
-        business_days: bool = False,
-    ) -> None:
-        self._gamma = gamma
-        super().__init__(S0, mu, sigma, num_paths, start_date, end_date, granularity, business_days)
+    gamma: float
 
-    def simulate(self, seed: int | None = None) -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
         """Simulate paths of the CEV model.
 
         Parameters
         ----------
         seed : int, optional
             Random seed for reproducibility.
+        method : str, optional
+            'euler' for Euler-Maruyama, 'milstein' for Milstein scheme.
+            Milstein adds 0.5 * sigma^2 * gamma * S^(2*gamma-1) * (Z^2-1) * dt.
 
         Returns
         -------
         np.ndarray
             A 2D array of shape (num_paths, num_steps).
         """
+        self._validate_method(method)
         if seed is not None:
             np.random.seed(seed)
-        S = np.zeros((self._num_paths, self._num_steps))
-        S[:, 0] = self._S0
+
+        S = np.zeros((self.num_paths, self._num_steps))
+        S[:, 0] = self.S0
+        Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
 
         for t in range(1, self._num_steps):
-            Z = generate_random_numbers("normal", self._num_paths, mean=0, stddev=1)
+            Z = Z_all[:, t - 1]
             S[:, t] = (
                 S[:, t - 1]
-                + self._mu * S[:, t - 1] * self._dt
-                + self._sigma * (S[:, t - 1] ** self._gamma) * np.sqrt(self._dt) * Z
+                + self.mu * S[:, t - 1] * self._dt
+                + self.sigma * (S[:, t - 1] ** self.gamma) * np.sqrt(self._dt) * Z
             )
+
+            if method == "milstein":
+                S[:, t] += 0.5 * self.sigma**2 * self.gamma * (S[:, t - 1] ** (2 * self.gamma - 1)) * (Z**2 - 1) * self._dt
 
         return S
 
@@ -87,11 +64,3 @@ class ConstantElasticityOfVariance(StochasticProcess):
     ) -> None:
         """Plot simulated CEV paths."""
         super().plot(paths, title=title, ylabel=ylabel, fig_size=fig_size, **kwargs)
-
-    @property
-    def gamma(self) -> float:
-        return self._gamma
-
-    @gamma.setter
-    def gamma(self, value: float) -> None:
-        self._gamma = value

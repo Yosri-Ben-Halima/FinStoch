@@ -7,6 +7,9 @@ from .ou import OrnsteinUhlenbeck
 from .cir import CoxIngersollRoss
 from .heston import HestonModel
 from .cev import ConstantElasticityOfVariance
+from .vasicek import VasicekModel
+from .bates import BatesModel
+from .variance_gamma import VarianceGammaProcess
 
 __all__ = [
     "StochasticProcess",
@@ -16,4 +19,7 @@ __all__ = [
     "CoxIngersollRoss",
     "HestonModel",
     "ConstantElasticityOfVariance",
+    "VasicekModel",
+    "BatesModel",
+    "VarianceGammaProcess",
 ]
