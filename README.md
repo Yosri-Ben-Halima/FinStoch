@@ -26,6 +26,8 @@
 - [Quick Start](#quick-start)
 - [Analytics](#analytics)
 - [Calibration](#calibration)
+- [Variance Reduction](#variance-reduction)
+- [Multi-Asset Simulation](#multi-asset-simulation)
 - [Development](#development)
 - [License](#license)
 
@@ -38,6 +40,8 @@
 - **Reproducible simulations** via seed control on all processes
 - **Flexible time grids** with configurable granularity (daily, hourly, minute-level) and business day support
 - **Built-in analytics** including VaR, CVaR, max drawdown, confidence bands, and summary statistics
+- **Antithetic variates** for variance reduction via `antithetic=True` on `simulate()`
+- **Multi-asset correlated simulation** via `CorrelatedGBM` with Cholesky-based correlation
 - **pandas integration** with `to_dataframe()` for seamless downstream analysis
 - **Parameter calibration** from observed data via `calibrate()` using literature-backed estimation methods (MLE, CLS, EM, GMM)
 - **Consistent API** across all models: every process exposes `simulate()`, `plot()`, `calibrate()`, and the full analytics suite
@@ -284,6 +288,57 @@ gbm = GeometricBrownianMotion(
 | Heston | Realized variance + CIR | Bollerslev & Zhou (2002) |
 | Bates | Two-stage (Heston + jump EM) | Bates (1996) |
 | Variance Gamma | Method of Moments | Madan, Carr, Chang (1998) |
+
+## Variance Reduction
+
+Use antithetic variates to reduce Monte Carlo variance:
+
+```python
+# Standard simulation
+paths = gbm.simulate(seed=42)
+
+# Antithetic variates — generates mirrored Z/-Z pairs
+paths_anti = gbm.simulate(seed=42, antithetic=True)
+```
+
+Antithetic variates are supported on all parametric processes. For CIR exact mode and Bootstrap (where mirroring is not applicable), the flag is ignored with a warning.
+
+## Multi-Asset Simulation
+
+Simulate correlated asset baskets with `CorrelatedGBM`:
+
+```python
+from FinStoch import CorrelatedGBM
+
+basket = CorrelatedGBM(
+    S0=[100, 50, 200],
+    mu=[0.05, 0.08, 0.03],
+    sigma=[0.2, 0.3, 0.15],
+    correlation=[[1, 0.6, 0.3],
+                 [0.6, 1, 0.5],
+                 [0.3, 0.5, 1]],
+    num_paths=1000,
+    start_date='2024-01-01',
+    end_date='2025-01-01',
+    granularity='D',
+)
+
+# Returns (num_assets, num_paths, num_steps)
+paths = basket.simulate(seed=42)
+
+# Portfolio analytics
+portfolio = basket.portfolio_paths(paths, weights=[0.5, 0.3, 0.2])
+basket.var(portfolio, alpha=0.05)
+basket.realized_correlation(paths)
+```
+
+Calibrate from multi-asset historical data:
+
+```python
+# data: 2D array (num_observations, num_assets)
+params = CorrelatedGBM.calibrate(data, dt=1/252)
+basket = CorrelatedGBM(**params, num_paths=1000, start_date='2024-01-01', end_date='2025-01-01', granularity='D')
+```
 
 ## Development
 

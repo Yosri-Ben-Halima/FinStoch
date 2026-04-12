@@ -24,7 +24,9 @@ class HestonModel(StochasticProcess):
     kappa: float
     rho: float
 
-    def simulate(self, seed: int | None = None, method: str = "euler") -> tuple[np.ndarray, np.ndarray]:
+    def simulate(
+        self, seed: int | None = None, method: str = "euler", antithetic: bool = False
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Simulate paths of the Heston model.
 
         Parameters
@@ -60,8 +62,8 @@ class HestonModel(StochasticProcess):
         v[:, 0] = self.v0
 
         L = np.array([[1, 0], [self.rho, np.sqrt(1 - self.rho**2)]])
-        Xs_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
-        Xv_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+        Xs_all = self._generate_normals((self.num_paths, self._num_steps - 1), antithetic)
+        Xv_all = self._generate_normals((self.num_paths, self._num_steps - 1), antithetic)
 
         for t in range(1, self._num_steps):
             X = np.dot(L, np.array([Xs_all[:, t - 1], Xv_all[:, t - 1]]))

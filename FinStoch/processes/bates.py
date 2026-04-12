@@ -28,7 +28,9 @@ class BatesModel(StochasticProcess):
     mu_j: float
     sigma_j: float
 
-    def simulate(self, seed: int | None = None, method: str = "euler") -> tuple[np.ndarray, np.ndarray]:
+    def simulate(
+        self, seed: int | None = None, method: str = "euler", antithetic: bool = False
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Simulate paths of the Bates model.
 
         Parameters
@@ -67,8 +69,8 @@ class BatesModel(StochasticProcess):
         k = np.exp(self.mu_j + 0.5 * self.sigma_j**2) - 1
 
         L = np.array([[1, 0], [self.rho, np.sqrt(1 - self.rho**2)]])
-        Xs_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
-        Xv_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+        Xs_all = self._generate_normals((self.num_paths, self._num_steps - 1), antithetic)
+        Xv_all = self._generate_normals((self.num_paths, self._num_steps - 1), antithetic)
         N_all = np.random.poisson(self.lambda_j * self._dt, (self.num_paths, self._num_steps - 1))
         J_all = np.random.normal(self.mu_j, self.sigma_j, (self.num_paths, self._num_steps - 1))
 

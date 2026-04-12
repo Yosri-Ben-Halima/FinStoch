@@ -18,7 +18,7 @@ class CoxIngersollRoss(StochasticProcess):
 
     theta: float
 
-    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler", antithetic: bool = False) -> np.ndarray:
         """Simulate paths of the CIR model.
 
         Parameters
@@ -43,6 +43,11 @@ class CoxIngersollRoss(StochasticProcess):
         S[:, 0] = self.S0
 
         if method == "exact":
+            if antithetic:
+                warnings.warn(
+                    "Antithetic variates are not supported for CIR exact method. Ignoring.",
+                    stacklevel=2,
+                )
             exp_decay = np.exp(-self.theta * self._dt)
             c = self.sigma**2 * (1 - exp_decay) / (4 * self.theta)
             df = 4 * self.theta * self.mu / self.sigma**2
@@ -50,7 +55,7 @@ class CoxIngersollRoss(StochasticProcess):
                 nc = S[:, t - 1] * exp_decay / c
                 S[:, t] = c * np.random.noncentral_chisquare(df, nc)
         else:
-            Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+            Z_all = self._generate_normals((self.num_paths, self._num_steps - 1), antithetic)
             for t in range(1, self._num_steps):
                 Z = Z_all[:, t - 1]
                 drift = self.theta * (self.mu - S[:, t - 1]) * self._dt

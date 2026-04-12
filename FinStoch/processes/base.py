@@ -83,8 +83,34 @@ class StochasticProcess(ABC):
         if method not in self._VALID_METHODS:
             raise ValueError(f"Unknown method '{method}'. Must be one of {self._VALID_METHODS}.")
 
+    def _generate_normals(self, shape: tuple[int, int], antithetic: bool) -> np.ndarray:
+        """Generate standard normal draws, optionally with antithetic mirroring.
+
+        Parameters
+        ----------
+        shape : tuple[int, int]
+            (num_paths, num_steps - 1).
+        antithetic : bool
+            If True, generate half the draws and mirror them.
+
+        Returns
+        -------
+        np.ndarray
+            Array of shape ``shape``.
+        """
+        if not antithetic:
+            return np.random.normal(0, 1, shape)
+        half = (shape[0] + 1) // 2
+        Z_half = np.random.normal(0, 1, (half, shape[1]))
+        return np.concatenate([Z_half, -Z_half], axis=0)[: shape[0]]
+
     @abstractmethod
-    def simulate(self, seed: int | None = None, method: str = "euler") -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
+    def simulate(
+        self,
+        seed: int | None = None,
+        method: str = "euler",
+        antithetic: bool = False,
+    ) -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
         """Simulate paths of the stochastic process.
 
         Parameters
@@ -96,6 +122,10 @@ class StochasticProcess(ABC):
             'milstein' for the Milstein scheme (higher-order accuracy),
             'exact' for exact transition density sampling (where available).
             Not all processes support all methods; see per-class docs.
+        antithetic : bool, optional
+            If True, use antithetic variates for variance reduction.
+            Generates num_paths // 2 independent draws and mirrors them.
+            Output shape is unchanged. Default is False.
 
         Returns
         -------

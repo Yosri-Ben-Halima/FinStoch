@@ -24,6 +24,7 @@ from FinStoch.processes import (
     VarianceGammaProcess,
 )
 from FinStoch.bootstrap import BootstrapMonteCarlo
+from FinStoch.multi_asset import CorrelatedGBM
 
 __all__ = [
     "StochasticProcess",
@@ -37,4 +38,5 @@ __all__ = [
     "BatesModel",
     "VarianceGammaProcess",
     "BootstrapMonteCarlo",
+    "CorrelatedGBM",
 ]

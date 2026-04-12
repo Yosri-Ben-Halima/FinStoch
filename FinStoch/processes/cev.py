@@ -18,7 +18,7 @@ class ConstantElasticityOfVariance(StochasticProcess):
 
     gamma: float
 
-    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler", antithetic: bool = False) -> np.ndarray:
         """Simulate paths of the CEV model.
 
         Parameters
@@ -47,7 +47,7 @@ class ConstantElasticityOfVariance(StochasticProcess):
 
         S = np.zeros((self.num_paths, self._num_steps))
         S[:, 0] = self.S0
-        Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+        Z_all = self._generate_normals((self.num_paths, self._num_steps - 1), antithetic)
 
         for t in range(1, self._num_steps):
             Z = Z_all[:, t - 1]

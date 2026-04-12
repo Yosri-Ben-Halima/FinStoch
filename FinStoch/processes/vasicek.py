@@ -22,7 +22,7 @@ class VasicekModel(StochasticProcess):
 
     a: float
 
-    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler", antithetic: bool = False) -> np.ndarray:
         """Simulate paths of the Vasicek model.
 
         Parameters
@@ -45,7 +45,7 @@ class VasicekModel(StochasticProcess):
 
         S = np.zeros((self.num_paths, self._num_steps))
         S[:, 0] = self.S0
-        Z_all = np.random.normal(0, 1, (self.num_paths, self._num_steps - 1))
+        Z_all = self._generate_normals((self.num_paths, self._num_steps - 1), antithetic)
 
         if method == "exact":
             decay = np.exp(-self.a * self._dt)

@@ -69,7 +69,7 @@ class BootstrapMonteCarlo(StochasticProcess):
             business_days=business_days,
         )
 
-    def simulate(self, seed: int | None = None, method: str = "euler") -> np.ndarray:
+    def simulate(self, seed: int | None = None, method: str = "euler", antithetic: bool = False) -> np.ndarray:
         """Simulate paths by bootstrapping historical log returns.
 
         Parameters
@@ -100,6 +100,11 @@ class BootstrapMonteCarlo(StochasticProcess):
                 stacklevel=2,
             )
             method = "euler"
+        if antithetic:
+            warnings.warn(
+                "Antithetic variates are not applicable to Bootstrap Monte Carlo. Ignoring.",
+                stacklevel=2,
+            )
         if seed is not None:
             np.random.seed(seed)
 
