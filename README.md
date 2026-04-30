@@ -11,7 +11,7 @@
 
 ## What is it?
 
-**FinStoch** is a Python library for simulating stochastic processes commonly used in quantitative finance. It provides clean, consistent interfaces for Monte Carlo path simulation with various methods available, with built-in analytics, seed control for reproducibility, and pandas integration.
+**FinStoch** is a Python library for simulating stochastic processes commonly used in quantitative finance and can be extended to any probablistic/generative data science problem. It provides clean, consistent interfaces for Monte Carlo path simulation with various methods available, with built-in analytics, seed control for reproducibility, and pandas integration.
 
 - **Source code:** <https://github.com/Yosri-Ben-Halima/FinStoch>
 - **Bug reports:** <https://github.com/Yosri-Ben-Halima/FinStoch/issues>
