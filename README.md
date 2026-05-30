@@ -3,13 +3,12 @@
 </h1><br>
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/FinStoch.svg)](https://pypi.org/project/FinStoch/)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/FinStoch.svg?label=PyPI%20downloads)](https://pypi.org/project/FinStoch/)
 [![License - MIT](https://img.shields.io/pypi/l/FinStoch.svg)](https://github.com/Yosri-Ben-Halima/FinStoch/blob/main/LICENSE)
 [![Python Version](https://img.shields.io/pypi/pyversions/FinStoch.svg)](https://pypi.org/project/FinStoch/)
 [![CI](https://github.com/Yosri-Ben-Halima/FinStoch/actions/workflows/ci.yml/badge.svg)](https://github.com/Yosri-Ben-Halima/FinStoch/actions/workflows/ci.yml)
 [![Typing](https://img.shields.io/pypi/types/FinStoch)](https://pypi.org/project/FinStoch/)
-
-## What is it?
+[![PyPI Downloads](https://static.pepy.tech/badge/FinStoch)](https://pepy.tech/project/FinStoch)
+[![PyPI Downloads Monthly](https://static.pepy.tech/badge/FinStoch/month)](https://pepy.tech/project/FinStoch)
 
 **FinStoch** is a Python library for simulating stochastic processes commonly used in quantitative finance and can be extended to any probablistic/generative data science problem. It provides clean, consistent interfaces for Monte Carlo path simulation with various methods available, with built-in analytics, seed control for reproducibility, and pandas integration.
 
